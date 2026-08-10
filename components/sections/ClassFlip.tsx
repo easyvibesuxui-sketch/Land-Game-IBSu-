@@ -47,7 +47,7 @@ export default function ClassFlip() {
           className="absolute inset-0 opacity-[0.5]"
           style={{
             background:
-              "radial-gradient(120% 80% at 50% 20%, rgba(255,255,255,0.6), transparent 60%), radial-gradient(80% 60% at 80% 90%, rgba(255,176,32,0.16), transparent 70%)",
+              "radial-gradient(120% 80% at 50% 20%, rgba(255,255,255,0.6), transparent 60%), radial-gradient(80% 60% at 80% 90%, rgba(200,16,46,0.16), transparent 70%)",
           }}
         />
 

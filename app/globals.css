@@ -2,7 +2,7 @@
 
 /* ==========================================================================
    syniotec · devices showroom
-   Cinematic dark. Thin display type, chrome, hi-vis amber, frosted glass.
+   Cinematic dark. Thin display type, chrome, deep crimson, frosted glass.
    ========================================================================== */
 
 :root {
@@ -13,9 +13,10 @@
   --muted: #8b96a5;
   --faint: #566171;
 
-  --accent: #ffb020; /* hi-vis amber — construction */
-  --accent-hot: #ff7a1a;
-  --signal: #6fd3f5; /* telemetry cyan, live states only */
+  --accent: #c8102e; /* deep crimson */
+  --accent-hot: #ff3b30; /* hot highlight */
+  --accent-deep: #7a0a1c; /* shadowed red, and red on pale backgrounds */
+  --signal: #9fb4c7; /* steel — radio waves, without adding a second hue */
 
   --glass: rgba(255, 255, 255, 0.045);
   --glass-strong: rgba(255, 255, 255, 0.08);
@@ -34,6 +35,7 @@
   --color-muted: var(--muted);
   --color-faint: var(--faint);
   --color-accent: var(--accent);
+  --color-accent-deep: var(--accent-deep);
   --color-signal: var(--signal);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -265,6 +267,59 @@ html.lenis body {
     .shape-circle {
       border-radius: 26px;
       clip-path: none;
+    }
+  }
+
+  /* Device assembly -------------------------------------------------------- */
+
+  /*
+    Explode → assemble. One property, `--a`, drives every part of a device:
+    0 = flown apart, 1 = assembled. Each part carries its own displacement as
+    --ex / --ey / --er and derives its transform from those plus --a, so the
+    driver only ever writes a single value per device per frame.
+
+    Defaulting to 1 matters: with no JS, no IntersectionObserver, or reduced
+    motion the device renders correctly assembled rather than stuck in pieces.
+  */
+  .device-art {
+    --a: 1;
+  }
+
+  .device-part {
+    --ex: 0;
+    --ey: 0;
+    --er: 0;
+    transform:
+      translate(
+        calc(var(--ex) * (1 - var(--a)) * 1px),
+        calc(var(--ey) * (1 - var(--a)) * 1px)
+      )
+      rotate(calc(var(--er) * (1 - var(--a)) * 1deg));
+    transform-box: fill-box;
+    transform-origin: center;
+    /* A touch of fade on the way out, but they must stay legible against the
+       backdrop — dropping much below this and an exploded device disappears. */
+    opacity: calc(0.72 + 0.28 * var(--a));
+  }
+
+  /*
+    The grid's one-shot variant hands interpolation to CSS. Each part leaves on
+    its own beat via an index-driven delay, so the device knits together instead
+    of snapping.
+  */
+  [data-assembling="true"] .device-part {
+    transition:
+      transform 1.05s cubic-bezier(0.16, 1, 0.3, 1),
+      opacity 0.8s ease-out;
+    transition-delay: calc(var(--pi, 0) * 55ms);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .device-art {
+      --a: 1 !important;
+    }
+    .device-part {
+      transition: none !important;
     }
   }
 

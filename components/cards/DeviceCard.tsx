@@ -8,6 +8,7 @@ import { EASE } from "@/lib/motion";
 
 import GlassTile from "./GlassTile";
 import DeviceArt from "@/components/device-art/DeviceArt";
+import { useAssemblyOnEnter } from "@/components/device-art/useAssembly";
 
 /** Short enough to survive the narrowest card without wrapping awkwardly. */
 const GROUP_SHORT: Record<PowerClass, string> = {
@@ -23,6 +24,7 @@ const GROUP_SHORT: Record<PowerClass, string> = {
 export default function DeviceCard({ device, className = "" }: { device: Device; className?: string }) {
   const reduced = useReduced();
   const centred = device.shape === "circle" || device.shape === "arch";
+  const assembly = useAssemblyOnEnter<SVGSVGElement>(120);
   const isCircle = device.shape === "circle";
 
   return (
@@ -85,8 +87,10 @@ export default function DeviceCard({ device, className = "" }: { device: Device;
           whileHover={reduced ? undefined : { scale: 1.06, y: -6 }}
           transition={{ duration: 0.7, ease: EASE }}
         >
+          {/* Parts fly in and knit together as the card enters the viewport. */}
           <DeviceArt
             slug={device.slug}
+            ref={assembly}
             className={
               device.shape === "wide" ? "h-[124%] w-auto" : "h-full w-auto max-w-full"
             }
@@ -118,13 +122,13 @@ export default function DeviceCard({ device, className = "" }: { device: Device;
           </div>
         </div>
 
-        {/* amber wash on hover */}
+        {/* red wash on hover */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 z-0 opacity-0 transition-opacity duration-700 group-hover:opacity-100"
           style={{
             background:
-              "radial-gradient(80% 60% at 50% 108%, rgba(255,176,32,0.20), transparent 70%)",
+              "radial-gradient(80% 60% at 50% 108%, rgba(200,16,46,0.28), transparent 70%)",
           }}
         />
       </GlassTile>

@@ -9,6 +9,7 @@ import Backdrop from "@/components/Backdrop";
 import GlassTile from "@/components/cards/GlassTile";
 import DeviceArt from "@/components/device-art/DeviceArt";
 import Parallax from "@/components/Parallax";
+import { useAssemblyScrub } from "@/components/device-art/useAssembly";
 import { Reveal, FadeUp } from "@/components/Reveal";
 
 export default function DeviceDetail({ device }: { device: Device }) {
@@ -21,6 +22,10 @@ export default function DeviceDetail({ device }: { device: Device }) {
   });
   const artY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
   const artRotate = useTransform(scrollYProgress, [0, 1], [0, 14]);
+
+  /* The hero scrub is the centrepiece here: the unit assembles as you enter it. */
+  const art = useRef<SVGSVGElement>(null);
+  useAssemblyScrub(art, scrollYProgress, 0.34);
 
   const i = devices.findIndex((d) => d.slug === device.slug);
   const next = devices[(i + 1) % devices.length];
@@ -82,7 +87,7 @@ export default function DeviceDetail({ device }: { device: Device }) {
               className="absolute inset-0 -z-10"
               style={{
                 background:
-                  "radial-gradient(circle at 50% 45%, rgba(255,176,32,0.20), transparent 62%)",
+                  "radial-gradient(circle at 50% 45%, rgba(200,16,46,0.26), transparent 62%)",
                 filter: "blur(30px)",
               }}
             />
@@ -90,7 +95,7 @@ export default function DeviceDetail({ device }: { device: Device }) {
               animate={reduced ? undefined : { y: [0, -16, 0] }}
               transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
             >
-              <DeviceArt slug={device.slug} className="h-auto w-full drop-shadow-2xl" />
+              <DeviceArt slug={device.slug} ref={art} className="h-auto w-full drop-shadow-2xl" />
             </motion.div>
 
             {/* the headline metric, as a floating chip */}

@@ -7,7 +7,7 @@ import { useReduced } from "@/lib/useReduced";
 /**
  * The reference leans on full-bleed 3D chrome renders. Those assets can't be
  * sourced, so the atmosphere is generated instead: bundles of drawn filaments —
- * thin bright wires catching amber light against a dark field.
+ * thin bright wires catching a deep red key light against a near-black field.
  *
  * Drawn as SVG strokes rather than blurred divs, because blur alone turns into
  * smoke; the look depends on the wires staying sharp at their core and only
@@ -49,7 +49,7 @@ function buildWires(seed: number, count: number): Wire[] {
     const sway = 45 + r() * 110;
     const drop = (r() - 0.5) * 90;
     const d = `M-14 ${y} C 22 ${y - sway}, 58 ${y + drop + sway}, 114 ${y + drop}`;
-    const hot = r() > 0.6;
+    const hot = r() > 0.38;
     wires.push({
       d,
       // px, because the strokes are non-scaling
@@ -77,7 +77,7 @@ export default function Backdrop({ tilt = 0, intensity = 1, className }: Props) 
         className="absolute inset-0"
         style={{
           background:
-            "radial-gradient(125% 95% at 64% 26%, #1a1d24 0%, #0a0b0f 46%, #050507 100%)",
+            "radial-gradient(125% 95% at 64% 26%, #241a1d 0%, #0d0a0c 46%, #050406 100%)",
         }}
       />
 
@@ -95,7 +95,7 @@ export default function Backdrop({ tilt = 0, intensity = 1, className }: Props) 
           borderRadius: "50%",
           filter: "blur(80px)",
           background:
-            "radial-gradient(circle, rgba(255,176,32,0.30) 0%, rgba(255,122,26,0.11) 40%, transparent 68%)",
+            "radial-gradient(circle, rgba(200,16,46,0.38) 0%, rgba(255,59,48,0.13) 40%, transparent 68%)",
         }}
         animate={reduced ? undefined : { scale: [1, 1.12, 1], opacity: [0.8, 1, 0.8] }}
         transition={{ duration: 13, repeat: Infinity, ease: "easeInOut" }}
@@ -117,11 +117,11 @@ export default function Backdrop({ tilt = 0, intensity = 1, className }: Props) 
             <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
           </linearGradient>
           <linearGradient id={`${uid}-hot`} x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#ffb020" stopOpacity="0" />
-            <stop offset="30%" stopColor="#ffb020" stopOpacity="0.85" />
-            <stop offset="55%" stopColor="#ffe6b0" stopOpacity="1" />
-            <stop offset="80%" stopColor="#ff7a1a" stopOpacity="0.7" />
-            <stop offset="100%" stopColor="#ff7a1a" stopOpacity="0" />
+            <stop offset="0%" stopColor="#c8102e" stopOpacity="0" />
+            <stop offset="30%" stopColor="#c8102e" stopOpacity="0.85" />
+            <stop offset="55%" stopColor="#ffd9d4" stopOpacity="1" />
+            <stop offset="80%" stopColor="#ff3b30" stopOpacity="0.7" />
+            <stop offset="100%" stopColor="#7a0a1c" stopOpacity="0" />
           </linearGradient>
         </defs>
 
