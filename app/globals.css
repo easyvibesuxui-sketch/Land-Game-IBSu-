@@ -1,0 +1,340 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   syniotec · devices showroom
+   Cinematic dark. Thin display type, chrome, hi-vis amber, frosted glass.
+   ========================================================================== */
+
+:root {
+  --bg: #08090b;
+  --bg-deep: #050507;
+  --surface: #0e1116;
+  --text: #eef1f5;
+  --muted: #8b96a5;
+  --faint: #566171;
+
+  --accent: #ffb020; /* hi-vis amber — construction */
+  --accent-hot: #ff7a1a;
+  --signal: #6fd3f5; /* telemetry cyan, live states only */
+
+  --glass: rgba(255, 255, 255, 0.045);
+  --glass-strong: rgba(255, 255, 255, 0.08);
+  --hairline: rgba(255, 255, 255, 0.12);
+
+  --light-bg: #babec4;
+  --light-text: #16181c;
+
+  --nav-h: 76px;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-accent: var(--accent);
+  --color-signal: var(--signal);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  min-width: 0;
+}
+
+html {
+  background: var(--bg-deep);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  overflow-x: clip;
+  font-synthesis-weight: none;
+}
+
+::selection {
+  background: var(--accent);
+  color: #0a0a0a;
+}
+
+/* Lenis ------------------------------------------------------------------ */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/*
+ * These live in the components layer on purpose: Tailwind emits its utilities
+ * in a later layer, so `absolute`, `rounded-*` and friends can still override
+ * a .glass or .shape-* rule on the same element. Left at the top level, a bare
+ * `.glass { position: relative }` silently beat every `absolute` in the app.
+ */
+@layer components {
+  /* Type ------------------------------------------------------------------- */
+
+  /* The reference's signature: enormous, hairline-thin, uppercase, tight leading. */
+  .display {
+    font-weight: 200;
+    text-transform: uppercase;
+    line-height: 0.92;
+    letter-spacing: -0.02em;
+    font-size: clamp(2.6rem, 8.2vw, 8.5rem);
+  }
+
+  .display-sm {
+    font-weight: 200;
+    text-transform: uppercase;
+    line-height: 0.95;
+    letter-spacing: -0.015em;
+    font-size: clamp(2rem, 4.6vw, 4.2rem);
+  }
+
+  /* Tiny spaced-out mono labels — the HUD layer. */
+  .hud {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-size: 0.625rem;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .hud-tight {
+    font-family: var(--font-geist-mono), ui-monospace, monospace;
+    font-size: 0.625rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .device-name {
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 300;
+  }
+
+  /* Glass ------------------------------------------------------------------ */
+
+  /*
+    Four stacked layers make the "liquid" read:
+    1. refraction  — backdrop blur + saturation, plus a displacement filter
+    2. tint        — translucent gradient, cooler at the top edge
+    3. specular    — a rim that catches light where the pointer is
+    4. inner bloom — large soft inset shadow for thickness
+  */
+  .glass {
+    position: relative;
+    isolation: isolate;
+    background: linear-gradient(
+      160deg,
+      rgba(255, 255, 255, 0.09) 0%,
+      rgba(255, 255, 255, 0.035) 38%,
+      rgba(255, 255, 255, 0.02) 100%
+    );
+    backdrop-filter: blur(20px) saturate(165%);
+    -webkit-backdrop-filter: blur(20px) saturate(165%);
+    box-shadow:
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.14),
+      inset 0 -1px 0 0 rgba(255, 255, 255, 0.04),
+      inset 0 0 40px 0 rgba(255, 255, 255, 0.035),
+      0 24px 60px -24px rgba(0, 0, 0, 0.85);
+  }
+
+  /* Specular highlight that tracks the pointer via --mx / --my. */
+  .glass::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    border-radius: inherit;
+    opacity: 0;
+    transition: opacity 0.45s ease;
+    background: radial-gradient(
+      340px circle at var(--mx, 50%) var(--my, 0%),
+      rgba(255, 255, 255, 0.16),
+      rgba(255, 255, 255, 0.04) 40%,
+      transparent 70%
+    );
+  }
+
+  .glass:hover::after,
+  .glass:focus-within::after {
+    opacity: 1;
+  }
+
+  /* The refraction layer — genuine warping of what is behind, not a flat blur. */
+  .glass-refract::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    filter: url(#liquid-refract);
+    opacity: 0.55;
+  }
+
+  /* A hairline that brightens toward the light source. */
+  .rim {
+    border: 1px solid transparent;
+    background-clip: padding-box;
+  }
+  .rim::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    border-radius: inherit;
+    padding: 1px;
+    pointer-events: none;
+    background: conic-gradient(
+      from 210deg at 50% 50%,
+      rgba(255, 255, 255, 0.5),
+      rgba(255, 255, 255, 0.06) 25%,
+      rgba(255, 255, 255, 0.03) 55%,
+      rgba(255, 255, 255, 0.28) 100%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+
+  /* Never render as unreadable haze where backdrop-filter is unsupported. */
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .glass {
+      background: rgba(20, 24, 30, 0.92);
+    }
+    .glass-refract::before {
+      display: none;
+    }
+  }
+
+  /* Card shapes ------------------------------------------------------------ */
+
+  .shape-arch {
+    border-radius: 999px 999px 22px 22px;
+  }
+  .shape-capsule {
+    border-radius: 999px;
+  }
+  .shape-wide {
+    border-radius: 22px;
+  }
+  .shape-tall {
+    border-radius: 22px;
+  }
+  .shape-squircle {
+    border-radius: 42px;
+  }
+  .shape-beveled {
+    border-radius: 22px;
+    clip-path: polygon(0 0, calc(100% - 58px) 0, 100% 58px, 100% 100%, 0 100%);
+  }
+  .shape-circle {
+    border-radius: 50%;
+  }
+
+  /*
+    Clip-paths and extreme radii read as deliberate at 1440px and as broken at
+    390px. Below the grid breakpoint every card becomes the same soft squircle.
+  */
+  @media (max-width: 900px) {
+    .shape-arch,
+    .shape-capsule,
+    .shape-wide,
+    .shape-tall,
+    .shape-squircle,
+    .shape-beveled,
+    .shape-circle {
+      border-radius: 26px;
+      clip-path: none;
+    }
+  }
+
+  /* Grain ------------------------------------------------------------------ */
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    pointer-events: none;
+    opacity: 0.045;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* A faint engineering grid, sitting under everything. */
+  .blueprint {
+    background-image:
+      linear-gradient(var(--hairline) 1px, transparent 1px),
+      linear-gradient(90deg, var(--hairline) 1px, transparent 1px);
+    background-size: 92px 92px;
+    opacity: 0.16;
+    mask-image: radial-gradient(ellipse 90% 60% at 50% 40%, #000 20%, transparent 78%);
+  }
+
+  /* Utilities -------------------------------------------------------------- */
+
+  .edge-fade-b {
+    mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+  }
+
+  .shell {
+    width: 100%;
+    max-width: 1560px;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 4vw, 4.5rem);
+  }
+
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    transition: background-size 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .link-underline:hover {
+    background-size: 100% 1px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+}
+
+/* Reduced motion --------------------------------------------------------- */
+/*
+  Every state stays reachable — only the interpolation is dropped. Parallax and
+  the pinned sections are neutralised in JS as well as here.
+*/
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .glass::after {
+    opacity: 0 !important;
+  }
+}
