@@ -9,12 +9,16 @@ import GlassTile from "@/components/cards/GlassTile";
 import DeviceArt from "@/components/device-art/DeviceArt";
 import { RevealLines, FadeUp } from "@/components/Reveal";
 
-/** The stat mosaic from the reference — deliberately unequal tiles. */
+/**
+ * The stat mosaic from the reference — deliberately unequal tiles. Each figure
+ * has to come off a device that is actually in the range, so this list moves
+ * whenever the range does.
+ */
 const STATS = [
-  { value: "10", label: "Units in the range", slug: null, span: "col-span-2 row-span-1" },
-  { value: "8y", label: "Longest battery life", slug: "dot", span: "col-span-1 row-span-2" },
-  { value: "1m", label: "GNSS position accuracy", slug: null, span: "col-span-1 row-span-1" },
-  { value: "90g", label: "Lightest unit", slug: "link-mini", span: "col-span-1 row-span-1" },
+  { value: "7", label: "Units in the range", slug: null, span: "col-span-2 row-span-1" },
+  { value: "5y", label: "Longest battery life", slug: "volt", span: "col-span-1 row-span-2" },
+  { value: "CAN", label: "Bus-level machine data", slug: "core", span: "col-span-1 row-span-1" },
+  { value: "0", label: "Power the tag needs", slug: "tag", span: "col-span-1 row-span-1" },
 ];
 
 export default function Hero() {
