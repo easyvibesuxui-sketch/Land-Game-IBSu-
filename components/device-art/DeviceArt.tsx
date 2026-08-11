@@ -235,6 +235,78 @@ function Grille({ x, y, rows, cols, gap = 8 }: { x: number; y: number; rows: num
   return <>{dots}</>;
 }
 
+/* A screw boss — the rounded lumps standing proud of a sealed housing's rim. */
+function Boss({ cx, cy, r = 5.5 }: { cx: number; cy: number; r?: number }) {
+  return (
+    <>
+      <circle cx={cx} cy={cy} r={r} fill="#15181d" />
+      <circle cx={cx} cy={cy - r * 0.22} r={r * 0.6} fill="#2b3038" opacity="0.75" />
+    </>
+  );
+}
+
+/* A bolt hole through a mounting ear. */
+function Hole({ cx, cy, r = 4 }: { cx: number; cy: number; r?: number }) {
+  return (
+    <>
+      <circle cx={cx} cy={cy} r={r} fill="#05070a" />
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#7f8b99" strokeOpacity="0.3" strokeWidth="0.8" />
+    </>
+  );
+}
+
+/*
+ * The QR code every unit carries. Not a real payload — a plausible module
+ * pattern with the three finders in place, which is what reads as a QR at
+ * card size.
+ */
+function Qr({ x, y, s = 30, fill = "#c3cbd6" }: { x: number; y: number; s?: number; fill?: string }) {
+  const u = s / 11;
+  const finder = (fx: number, fy: number) => (
+    <g key={`f${fx}-${fy}`}>
+      <rect x={x + fx * u} y={y + fy * u} width={u * 3} height={u * 3} fill={fill} />
+      <rect x={x + (fx + 1) * u} y={y + (fy + 1) * u} width={u} height={u} fill="#0a0c10" />
+    </g>
+  );
+  const dots = [
+    [5, 0], [7, 1], [5, 2], [9, 3], [4, 4], [6, 4], [10, 5],
+    [8, 5], [5, 6], [7, 7], [9, 7], [4, 8], [6, 9], [8, 9], [10, 9], [5, 10],
+  ];
+  return (
+    <g>
+      <rect x={x} y={y} width={s} height={s} fill="#0a0c10" />
+      {finder(0.5, 0.5)}
+      {finder(7.5, 0.5)}
+      {finder(0.5, 7.5)}
+      {dots.map(([dx, dy], i) => (
+        <rect key={i} x={x + dx * u} y={y + dy * u} width={u} height={u} fill={fill} opacity="0.85" />
+      ))}
+    </g>
+  );
+}
+
+/* The certification row — CE, WEEE, FCC, E-mark — as marks, not legible text. */
+function Certs({ x, y, scale = 1 }: { x: number; y: number; scale?: number }) {
+  return (
+    <g transform={`translate(${x},${y}) scale(${scale})`} fill="#98a4b3" opacity="0.7">
+      <text fontSize="7" letterSpacing="0.6" fontStyle="italic">
+        CE
+      </text>
+      <path d="M13 -6 h7 v7 h-7 z M13 -6 l7 7 M20 -6 l-7 7" stroke="#98a4b3" strokeWidth="0.7" fill="none" />
+      <text x="24" y="0" fontSize="6.5" letterSpacing="0.4">
+        FCC
+      </text>
+      <circle cx="48" cy="-2.4" r="4.4" fill="none" stroke="#98a4b3" strokeWidth="0.7" />
+      <text x="45.6" y="0" fontSize="5.5">
+        E
+      </text>
+    </g>
+  );
+}
+
+/* The white silkscreen wordmark. Set to read as branding, not as a caption. */
+const MARK = { fill: "#eef1f5", fontSize: 13, letterSpacing: -0.2, fontWeight: 600 } as const;
+
 const LABEL = { fill: "#98a4b3", fontSize: 9, letterSpacing: 2.4, opacity: 0.75 } as const;
 
 export default function DeviceArt({ slug, className, style, ref }: ArtProps) {
@@ -320,27 +392,102 @@ export default function DeviceArt({ slug, className, style, ref }: ArtProps) {
         </Shell>
       );
 
-    /* ------------------------------------------------ LITE — small, one cable */
+    /*
+     * LITE — the flat black box with a corner tab at each end, the silkscreened
+     * face, and the fused red/black flying lead that goes straight to the
+     * battery.
+     */
     case "lite":
       return (
         <Shell {...shell}>
-          <Part i={4} dx={36} dy={26} rot={16}>
-            <Cable d="M100 136 C 100 156, 120 162, 140 166" />
+          {/* the flying lead, unplugging away to the left */}
+          <Part i={6} dx={-40} dy={26} rot={-12}>
+            <path
+              d="M62 92 C 40 88, 24 70, 22 48"
+              stroke="var(--accent)"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+              fill="none"
+            />
+            <path
+              d="M62 102 C 36 100, 18 82, 16 58"
+              stroke="#15181d"
+              strokeWidth="3.2"
+              strokeLinecap="round"
+              fill="none"
+            />
+            {/* inline fuse holder, sitting on the positive lead */}
+            <g transform="rotate(-42 34 70)">
+              <rect x={24} y={64} width={20} height={11} rx={3} fill="#0d1015" stroke="#4a525c" strokeOpacity="0.55" />
+              <rect x={28} y={67} width={12} height={5} rx={1.5} fill="#2b3038" />
+            </g>
+            {/* fork terminal at the battery end */}
+            <g transform="rotate(-16 20 44)">
+              <path d="M22 48 v-8" stroke="#c3cbd6" strokeWidth="2.6" strokeLinecap="round" />
+              <path
+                d="M18 40 v-6 M26 40 v-6 M18 40 h8"
+                stroke="#c3cbd6"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+                fill="none"
+              />
+            </g>
           </Part>
-          <Part i={1} dx={22} dy={-32} rot={-8}>
-            <BoxShell gid={gid} x={66} y={78} w={68} h={58} d={16} r={16} />
+
+          {/* corner mounting tabs */}
+          {(
+            [
+              [52, 56, -30, -26],
+              [148, 56, 30, -26],
+              [52, 148, -30, 26],
+              [148, 148, 30, 26],
+            ] as const
+          ).map(([cx, cy, dx, dy], i) => (
+            <Part key={i} i={4} dx={dx} dy={dy}>
+              <rect x={cx - 9} y={cy - 8} width={18} height={16} rx={5} fill={`url(#${gid}-side)`} />
+              <Hole cx={cx} cy={cy} r={3.4} />
+            </Part>
+          ))}
+
+          <Part i={1} dx={20} dy={-34} rot={-7}>
+            <BoxShell gid={gid} x={62} y={48} w={76} h={108} d={12} r={7} />
           </Part>
           <Part i={0}>
-            <BoxFace gid={gid} x={66} y={78} w={68} h={58} r={16} />
+            <BoxFace gid={gid} x={62} y={48} w={76} h={108} r={7} />
           </Part>
-          <Part i={2} dy={-34}>
-            <Led gid={gid} cx={100} cy={98} />
-          </Part>
-          <Part i={3} dx={-30} dy={20}>
-            <rect x={80} y={116} width={40} height={1.2} fill="#6e7a89" opacity="0.5" />
-            <text x={80} y={112} {...LABEL} fontSize={8} letterSpacing={2.2}>
+
+          {/* the silkscreen: wordmark, model, code, cert row, address block */}
+          <Part i={2} dy={-30}>
+            <text x={70} y={70} {...MARK} fontSize={12}>
+              syniotec
+            </text>
+            <text x={70} y={79} {...LABEL} fontSize={5.5} letterSpacing={1.6}>
               LITE
             </text>
+          </Part>
+          <Part i={3} dx={-34} dy={-8}>
+            <Qr x={70} y={86} s={26} />
+            <text x={70} y={118} {...LABEL} fontSize={4} letterSpacing={0.5}>
+              IMEI 865894050000
+            </text>
+          </Part>
+          <Part i={3} dx={34}>
+            <Led gid={gid} cx={122} cy={100} />
+          </Part>
+          <Part i={5} dy={30}>
+            <Certs x={70} y={132} scale={0.8} />
+            {[0, 1, 2].map((i) => (
+              <rect
+                key={i}
+                x={70}
+                y={140 + i * 5}
+                width={i === 2 ? 34 : 56}
+                height={1.6}
+                rx={0.8}
+                fill="#98a4b3"
+                opacity="0.4"
+              />
+            ))}
           </Part>
         </Shell>
       );
@@ -371,46 +518,87 @@ export default function DeviceArt({ slug, className, style, ref }: ArtProps) {
               <rect key={`b${i}`} x={80 + i * 5.4} y={136} width={3} height={4} rx={0.6} fill="#c3cbd6" opacity="0.55" />
             ))}
           </Part>
-          <Part i={2} dx={32} dy={-22}>
-            <Led gid={gid} cx={126} cy={76} />
-          </Part>
-          <Part i={3} dx={-30} dy={12}>
-            <text x={72} y={102} {...LABEL}>
-              OBD
+          {/* the label wraps the top face */}
+          <Part i={3} dx={-30} dy={-16}>
+            <rect x={70} y={70} width={60} height={38} rx={2} fill="#0a0c10" stroke="#4a525c" strokeOpacity="0.4" />
+            <text x={76} y={82} {...LABEL} fontSize={6} letterSpacing={0.6}>
+              syniotec OBD
             </text>
+            <Qr x={76} y={84} s={20} />
+            <Certs x={100} y={102} scale={0.62} />
+          </Part>
+          <Part i={2} dx={32} dy={-24}>
+            <Led gid={gid} cx={126} cy={74} />
           </Part>
         </Shell>
       );
 
-    /* -------------------------------------- LINK — sealed, no cable, antenna */
+    /*
+     * LINK — the sealed, matte-black rugged box: a lobed base flange with a
+     * bolt hole in each side ear, screw bosses standing proud around the rim,
+     * and a raised lid with a single moulding line down the middle.
+     */
     case "link":
       return (
         <Shell {...shell}>
-          <Part i={1} dx={26} dy={-34} rot={-8}>
-            <BoxShell gid={gid} x={58} y={64} w={84} h={76} d={20} r={20} />
-          </Part>
+          {/* base flange, with the side ears it bolts through */}
           <Part i={0}>
-            <BoxFace gid={gid} x={58} y={64} w={84} h={76} r={20} />
+            <path d="M46 82 h-14 a7 7 0 0 0 -7 7 v22 a7 7 0 0 0 7 7 h14 z" fill={`url(#${gid}-side)`} />
+            <path d="M154 82 h14 a7 7 0 0 1 7 7 v22 a7 7 0 0 1 -7 7 h-14 z" fill={`url(#${gid}-side)`} />
+            <Hole cx={35} cy={100} />
+            <Hole cx={165} cy={100} />
+            <rect
+              x={46}
+              y={40}
+              width={108}
+              height={120}
+              rx={15}
+              fill={`url(#${gid}-front)`}
+              stroke="#4a525c"
+              strokeOpacity="0.45"
+            />
           </Part>
-          {/* mounting lugs — it straps to an attachment, so they scatter */}
-          <Part i={3} dx={-30} dy={-26}>
-            <circle cx={68} cy={74} r="3.4" fill="#05070a" />
+
+          {/* the lid lifts up and back off the seal */}
+          <Part i={1} dx={22} dy={-52} rot={-9}>
+            <rect x={58} y={52} width={84} height={96} rx={13} fill={`url(#${gid}-top)`} />
+            <rect x={58} y={52} width={84} height={96} rx={13} fill={`url(#${gid}-spec)`} opacity="0.18" />
+            <rect
+              x={58}
+              y={52}
+              width={84}
+              height={96}
+              rx={13}
+              fill="none"
+              stroke="#5c646f"
+              strokeOpacity="0.4"
+            />
+            {/* the moulding line down the face */}
+            <path d="M100 66 L100 134" stroke="#39414a" strokeWidth="1.1" />
           </Part>
-          <Part i={3} dx={30} dy={-26}>
-            <circle cx={132} cy={74} r="3.4" fill="#05070a" />
-          </Part>
-          <Part i={3} dx={-30} dy={26}>
-            <circle cx={68} cy={130} r="3.4" fill="#05070a" />
-          </Part>
-          <Part i={3} dx={30} dy={26}>
-            <circle cx={132} cy={130} r="3.4" fill="#05070a" />
-          </Part>
+
+          {/* bosses scatter off the rim */}
+          {(
+            [
+              [100, 38, -34],
+              [100, 162, 34],
+              [54, 52, -26],
+              [146, 52, -26],
+              [54, 148, 26],
+              [146, 148, 26],
+            ] as const
+          ).map(([cx, cy, dy], i) => (
+            <Part key={i} i={3} dx={(cx - 100) * 0.5} dy={dy}>
+              <Boss cx={cx} cy={cy} />
+            </Part>
+          ))}
+
           {/* radio waves — LTE-M + NB-IoT */}
           <Part i={5} dy={-40}>
             {[0, 1, 2].map((i) => (
               <path
                 key={i}
-                d={`M100 ${58 - i * 9} m-${14 + i * 10} 0 a ${14 + i * 10} ${9 + i * 6} 0 0 1 ${28 + i * 20} 0`}
+                d={`M100 ${32 - i * 8} m-${14 + i * 10} 0 a ${14 + i * 10} ${9 + i * 6} 0 0 1 ${28 + i * 20} 0`}
                 stroke="var(--accent-hot)"
                 strokeWidth="1.4"
                 opacity={0.55 - i * 0.15}
@@ -418,47 +606,58 @@ export default function DeviceArt({ slug, className, style, ref }: ArtProps) {
               />
             ))}
           </Part>
-          <Part i={2} dy={-30}>
-            <Led gid={gid} cx={100} cy={92} />
-          </Part>
-          <Part i={4} dy={26}>
-            <text x={80} y={122} {...LABEL}>
-              LINK
-            </text>
-          </Part>
         </Shell>
       );
 
-    /* ------------------- LINK mini — 84 × 63 × 24 mm, held to that proportion */
+    /* --------- LINK mini — the same housing, 84 × 63 × 24 mm of it */
     case "link-mini":
       return (
         <Shell {...shell}>
-          <Part i={1} dx={20} dy={-28} rot={-9}>
-            <BoxShell gid={gid} x={68} y={82} w={64} h={48} d={14} r={12} />
-          </Part>
           <Part i={0}>
-            <BoxFace gid={gid} x={68} y={82} w={64} h={48} r={12} />
+            <path d="M62 92 h-11 a6 6 0 0 0 -6 6 v16 a6 6 0 0 0 6 6 h11 z" fill={`url(#${gid}-side)`} />
+            <path d="M138 92 h11 a6 6 0 0 1 6 6 v16 a6 6 0 0 1 -6 6 h-11 z" fill={`url(#${gid}-side)`} />
+            <Hole cx={53} cy={106} r={3.2} />
+            <Hole cx={147} cy={106} r={3.2} />
+            <rect
+              x={62}
+              y={62}
+              width={76}
+              height={88}
+              rx={12}
+              fill={`url(#${gid}-front)`}
+              stroke="#4a525c"
+              strokeOpacity="0.45"
+            />
           </Part>
-          <Part i={3} dx={-26} dy={-22}>
-            <circle cx={78} cy={92} r="2.6" fill="#05070a" />
+
+          <Part i={1} dx={18} dy={-42} rot={-10}>
+            <rect x={71} y={72} width={58} height={68} rx={10} fill={`url(#${gid}-top)`} />
+            <rect x={71} y={72} width={58} height={68} rx={10} fill={`url(#${gid}-spec)`} opacity="0.18" />
+            <rect x={71} y={72} width={58} height={68} rx={10} fill="none" stroke="#5c646f" strokeOpacity="0.4" />
+            <path d="M100 84 L100 128" stroke="#39414a" strokeWidth="1" />
           </Part>
-          <Part i={3} dx={26} dy={-22}>
-            <circle cx={122} cy={92} r="2.6" fill="#05070a" />
-          </Part>
-          <Part i={2} dy={-26}>
-            <Led gid={gid} cx={100} cy={106} />
-          </Part>
-          <Part i={4} dy={22}>
-            <text x={80} y={124} {...LABEL} fontSize={7} letterSpacing={1.8}>
-              LINK mini
-            </text>
-          </Part>
-          {/* dimension callout — the spec is the story here */}
+
+          {(
+            [
+              [100, 60, -28],
+              [100, 152, 28],
+              [68, 70, -22],
+              [132, 70, -22],
+              [68, 142, 22],
+              [132, 142, 22],
+            ] as const
+          ).map(([cx, cy, dy], i) => (
+            <Part key={i} i={3} dx={(cx - 100) * 0.5} dy={dy}>
+              <Boss cx={cx} cy={cy} r={4.2} />
+            </Part>
+          ))}
+
+          {/* dimension callout — the size is the story here */}
           <Part i={5} dy={34}>
             <g opacity="0.5">
-              <path d="M68 140 L132 140" stroke="#6e7a89" strokeWidth="0.8" />
-              <path d="M68 137 L68 143 M132 137 L132 143" stroke="#6e7a89" strokeWidth="0.8" />
-              <text x={100} y={152} fill="#8d99a8" fontSize="7" textAnchor="middle" letterSpacing="1.2">
+              <path d="M62 160 L138 160" stroke="#6e7a89" strokeWidth="0.8" />
+              <path d="M62 157 L62 163 M138 157 L138 163" stroke="#6e7a89" strokeWidth="0.8" />
+              <text x={100} y={172} fill="#8d99a8" fontSize="7" textAnchor="middle" letterSpacing="1.2">
                 84 mm
               </text>
             </g>
@@ -476,27 +675,53 @@ export default function DeviceArt({ slug, className, style, ref }: ArtProps) {
           <Part i={0}>
             <BoxFace gid={gid} x={44} y={82} w={112} h={54} r={14} />
           </Part>
-          {/* battery cell segments — five years of them, sliding out as a bank */}
+          {/*
+            The cell bank sits under the label plate: sealed, it is simply not
+            visible, and the explosion is what reveals where five years of
+            runtime comes from.
+          */}
           {[0, 1, 2, 3, 4].map((i) => (
-            <Part key={i} i={2 + i} dx={(i - 2) * 26} dy={-32}>
+            <Part key={i} i={2 + i} dx={(i - 2) * 30} dy={-40}>
               <rect
                 x={54 + i * 20}
-                y={94}
-                width={13}
-                height={18}
-                rx={2}
+                y={92}
+                width={14}
+                height={20}
+                rx={3}
                 fill="var(--accent)"
-                opacity={0.22 + i * 0.15}
+                opacity={0.3 + i * 0.14}
               />
             </Part>
           ))}
-          <Part i={7} dx={34} dy={20}>
-            <Led gid={gid} cx={140} cy={124} />
-          </Part>
-          <Part i={7} dx={-34} dy={20}>
-            <text x={54} y={128} {...LABEL}>
-              VOLT
+
+          {/* label plate — the whole top face is printed */}
+          <Part i={7} dy={-16}>
+            <rect x={52} y={86} width={96} height={46} rx={2} fill="#0a0c10" stroke="#4a525c" strokeOpacity="0.4" />
+            <text x={58} y={95} {...LABEL} fontSize={5} letterSpacing={0.4}>
+              syniotec VOLT
             </text>
+            <Qr x={58} y={98} s={22} />
+            <Qr x={116} y={98} s={22} />
+            {[0, 1, 2, 3].map((i) => (
+              <rect key={i} x={84} y={100 + i * 5} width={28} height={1.4} rx={0.7} fill="#98a4b3" opacity="0.4" />
+            ))}
+            <Certs x={84} y={126} scale={0.55} />
+          </Part>
+
+          {/* mounting flange along the bottom edge */}
+          <Part i={8} dy={30}>
+            <path d="M62 136 h34 a5 5 0 0 1 5 5 v8 a5 5 0 0 1 -5 5 h-34 z" fill={`url(#${gid}-side)`} />
+            <Hole cx={72} cy={145} r={3.4} />
+          </Part>
+
+          {/* the sealed connector on the end */}
+          <Part i={8} dx={46}>
+            <rect x={164} y={98} width={16} height={26} rx={3} fill="#15181d" stroke="#4a525c" strokeOpacity="0.45" />
+            <rect x={168} y={104} width={8} height={14} rx={1.5} fill="#05070a" />
+          </Part>
+
+          <Part i={9} dx={-34} dy={24}>
+            <Led gid={gid} cx={60} cy={142} />
           </Part>
         </Shell>
       );
@@ -593,61 +818,70 @@ export default function DeviceArt({ slug, className, style, ref }: ArtProps) {
         </Shell>
       );
 
-    /* ------------------------------------------- TAG — passive disc, QR + NFC */
+    /*
+     * TAG — the passive plate: chamfered corners, a bolt hole at each of them,
+     * the wordmark engraved across the top, and along the bottom the NFC mark,
+     * the black reader dome and the QR block.
+     */
     case "tag":
       return (
         <Shell {...shell}>
+          {/* the plate itself, corners chamfered off */}
           <Part i={0}>
-            <circle cx={100} cy={104} r="52" fill={`url(#${gid}-front)`} stroke="#7f8b99" strokeOpacity="0.34" />
-            <circle cx={100} cy={104} r="52" fill={`url(#${gid}-spec)`} opacity="0.35" />
+            <path
+              d="M42 68 l10 -10 h96 l10 10 v72 l-10 10 h-96 l-10 -10 z"
+              fill={`url(#${gid}-front)`}
+              stroke="#7f8b99"
+              strokeOpacity="0.34"
+            />
+            <path d="M42 68 l10 -10 h96 l10 10 v72 l-10 10 h-96 l-10 -10 z" fill={`url(#${gid}-spec)`} opacity="0.16" />
           </Part>
-          <Part i={2} rot={-30}>
-            <circle cx={100} cy={104} r="42" fill="none" stroke="#6e7a89" strokeOpacity="0.3" strokeDasharray="2 5" />
-          </Part>
-          {/* the QR block lifts straight off the disc */}
-          <Part i={1} dy={-46} rot={-10}>
-            <g transform="translate(78,82)">
-              <rect width="44" height="44" fill="#05070a" rx="3" />
-              {[
-                [3, 3],
-                [29, 3],
-                [3, 29],
-              ].map(([x, y], i) => (
-                <g key={i}>
-                  <rect x={x} y={y} width="12" height="12" fill="#c3cbd6" />
-                  <rect x={x + 3} y={y + 3} width="6" height="6" fill="#05070a" />
-                </g>
-              ))}
-              {[
-                [20, 20],
-                [26, 20],
-                [20, 26],
-                [32, 26],
-                [26, 32],
-                [20, 38],
-                [38, 20],
-                [32, 38],
-              ].map(([x, y], i) => (
-                <rect key={`d${i}`} x={x} y={y} width="4" height="4" fill="#c3cbd6" opacity="0.85" />
-              ))}
-            </g>
-          </Part>
-          {/* NFC field */}
-          {[0, 1, 2].map((i) => (
-            <Part key={i} i={3 + i} dx={26 + i * 10}>
-              <path
-                d={`M158 ${88 + i * 4} a ${18 + i * 9} ${18 + i * 9} 0 0 1 0 ${32 - i * 8}`}
-                stroke="var(--signal)"
-                strokeWidth="1.3"
-                opacity={0.5 - i * 0.13}
-                fill="none"
-              />
+
+          {/* corner bolt holes — it is screwed to the asset and left there */}
+          {(
+            [
+              [55, 70, -30, -26],
+              [145, 70, 30, -26],
+              [55, 138, -30, 26],
+              [145, 138, 30, 26],
+            ] as const
+          ).map(([cx, cy, dx, dy], i) => (
+            <Part key={i} i={4} dx={dx} dy={dy}>
+              <Hole cx={cx} cy={cy} r={4.2} />
             </Part>
           ))}
-          <Part i={2} dy={34}>
-            <text x={100} y={172} {...LABEL} letterSpacing={2.6} textAnchor="middle">
-              TAG
+
+          {/* engraved wordmark, lifting off the plate */}
+          <Part i={1} dy={-44} rot={-8}>
+            <text x={68} y={96} fill="#c3cbd6" fontSize="19" fontWeight={600} letterSpacing="-0.4">
+              syniotec
             </text>
+          </Part>
+
+          {/* the reader dome */}
+          <Part i={2} dy={-24}>
+            <circle cx={100} cy={124} r="15" fill="#c3cbd6" opacity="0.35" />
+            <circle cx={100} cy={124} r="13" fill="#05070a" />
+            <circle cx={96} cy={119} r="5" fill="#3a424c" opacity="0.7" />
+          </Part>
+
+          {/* NFC mark */}
+          <Part i={3} dx={-34}>
+            {[0, 1, 2].map((i) => (
+              <path
+                key={i}
+                d={`M${70 + i * 4} ${118 - i * 3} a ${7 + i * 4} ${7 + i * 4} 0 0 1 0 ${13 + i * 6}`}
+                stroke="var(--signal)"
+                strokeWidth="1.4"
+                opacity={0.75 - i * 0.16}
+                fill="none"
+              />
+            ))}
+          </Part>
+
+          {/* the QR block */}
+          <Part i={3} dx={38} dy={18}>
+            <Qr x={120} y={108} s={26} />
           </Part>
         </Shell>
       );
