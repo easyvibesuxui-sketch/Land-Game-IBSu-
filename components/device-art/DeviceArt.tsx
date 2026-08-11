@@ -134,10 +134,10 @@ function Shell({
           <image
             className="device-photo"
             href={photo}
-            x="14"
-            y="14"
-            width="172"
-            height="150"
+            x="16"
+            y="10"
+            width="168"
+            height="162"
             preserveAspectRatio="xMidYMid meet"
           />
         </>

@@ -13,7 +13,7 @@ export type Device = {
   metric: { value: string; label: string };
   shape: "arch" | "capsule" | "wide" | "squircle" | "beveled" | "circle" | "tall";
   /**
-   * Optional product photograph, e.g. "/devices/obd.png" — a cut-out on
+   * Optional product photograph, e.g. "/devices/obd.webp" — a cut-out on
    * transparency, since it sits on the dark card with no plate behind it.
    *
    * Where it is set, the drawn SVG still plays the exploded state and
@@ -63,6 +63,7 @@ export const devices: Device[] = [
       { label: "Reads", value: "Operating hours · speed · fuel consumption" },
     ],
     metric: { value: "CAN", label: "Bus level data" },
+    photo: "/devices/core.webp",
     shape: "arch",
   },
   {
@@ -99,6 +100,7 @@ export const devices: Device[] = [
       { label: "Omits", value: "Maintenance monitoring · driving behaviour" },
     ],
     metric: { value: "1", label: "Job, done exactly" },
+    photo: "/devices/lite.webp",
     shape: "wide",
   },
   {
@@ -117,6 +119,7 @@ export const devices: Device[] = [
       { label: "Also fits", value: "Machines and attachments" },
     ],
     metric: { value: "0", label: "Tools to fit it" },
+    photo: "/devices/obd.webp",
     shape: "squircle",
   },
   {
@@ -135,6 +138,7 @@ export const devices: Device[] = [
       { label: "Transmits", value: "Direct to the IoT platform" },
     ],
     metric: { value: "2", label: "Radio networks" },
+    photo: "/devices/link.webp",
     shape: "squircle",
   },
   {
@@ -178,6 +182,7 @@ export const devices: Device[] = [
       { label: "Network", value: "LTE CAT M1 / NB1, 2G fallback" },
     ],
     metric: { value: "5y", label: "Battery life" },
+    photo: "/devices/volt.webp",
     shape: "wide",
   },
   {
@@ -216,6 +221,7 @@ export const devices: Device[] = [
       { label: "Wiring", value: "None" },
     ],
     metric: { value: "∞", label: "While the sun is up" },
+    photo: "/devices/solar.webp",
     shape: "beveled",
   },
   {
@@ -235,6 +241,7 @@ export const devices: Device[] = [
       { label: "Opens", value: "The individual device profile" },
     ],
     metric: { value: "0", label: "Power required" },
+    photo: "/devices/tag.webp",
     shape: "circle",
   },
 ];
