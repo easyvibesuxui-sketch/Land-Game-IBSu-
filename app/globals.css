@@ -314,9 +314,34 @@ html.lenis body {
     transition-delay: calc(var(--pi, 0) * 55ms);
   }
 
+  /*
+    Where a device has a photograph, the drawing plays the exploded state and
+    hands over to the photograph as it assembles. Both ramps are driven by the
+    same `--a`; opacity clamps to 0–1 on its own, so the pieces simply sit at
+    their end values outside the 0.5–1 crossover.
+
+    These are only applied when a photo exists — drawn-only devices must never
+    inherit a fading layer.
+  */
+  .device-drawn {
+    opacity: calc(2 - 2 * var(--a));
+  }
+  .device-photo {
+    opacity: calc(2 * var(--a) - 1);
+  }
+  [data-assembling="true"] .device-drawn,
+  [data-assembling="true"] .device-photo {
+    transition: opacity 0.9s ease-out;
+    transition-delay: 0.2s;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .device-art {
       --a: 1 !important;
+    }
+    .device-drawn,
+    .device-photo {
+      transition: none !important;
     }
     .device-part {
       transition: none !important;

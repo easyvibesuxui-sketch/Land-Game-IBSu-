@@ -12,6 +12,16 @@ export type Device = {
   specs: { label: string; value: string }[];
   metric: { value: string; label: string };
   shape: "arch" | "capsule" | "wide" | "squircle" | "beveled" | "circle" | "tall";
+  /**
+   * Optional product photograph, e.g. "/devices/obd.png" — a cut-out on
+   * transparency, since it sits on the dark card with no plate behind it.
+   *
+   * Where it is set, the drawn SVG still plays the exploded state and
+   * cross-fades into the photograph as the device assembles, so assembly
+   * resolves onto the real hardware. Where it is absent the drawn art is the
+   * finished state, so every device is complete with or without a file.
+   */
+  photo?: string;
 };
 
 export const GROUPS: { id: PowerClass; label: string; blurb: string }[] = [

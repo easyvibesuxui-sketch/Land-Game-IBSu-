@@ -2,6 +2,8 @@
 
 import { type CSSProperties, type ReactNode, type Ref, useId } from "react";
 
+import { bySlug } from "@/lib/devices";
+
 /*
  * Product photography can't be sourced, so each unit is drawn. Proportions
  * follow the published dimensions where they exist (LINK mini is 84 × 63 × 24,
@@ -63,6 +65,7 @@ function Shell({
   className,
   style,
   svgRef,
+  photo,
 }: {
   children: ReactNode;
   gid: string;
@@ -70,6 +73,8 @@ function Shell({
   className?: string;
   style?: CSSProperties;
   svgRef?: Ref<SVGSVGElement>;
+  /** Product photograph for this device, if one has been supplied. */
+  photo?: string;
 }) {
   return (
     <svg
@@ -121,7 +126,24 @@ function Shell({
 
       {/* Contact shadow, so every unit sits on a surface */}
       <ellipse cx="100" cy="176" rx="62" ry="9" fill="#000" opacity="0.5" filter={`url(#${gid}-glow)`} />
-      {children}
+
+      {photo ? (
+        <>
+          {/* The drawing carries the exploded state and steps aside as it assembles. */}
+          <g className="device-drawn">{children}</g>
+          <image
+            className="device-photo"
+            href={photo}
+            x="14"
+            y="14"
+            width="172"
+            height="150"
+            preserveAspectRatio="xMidYMid meet"
+          />
+        </>
+      ) : (
+        children
+      )}
     </svg>
   );
 }
@@ -218,11 +240,21 @@ const LABEL = { fill: "#98a4b3", fontSize: 9, letterSpacing: 2.4, opacity: 0.75 
 export default function DeviceArt({ slug, className, style, ref }: ArtProps) {
   const gid = useId().replace(/:/g, "");
 
+  /* Identical for every device — kept in one place so the shell can gain props
+     (the photograph, most recently) without touching all ten drawings. */
+  const shell = {
+    gid,
+    className,
+    style,
+    svgRef: ref,
+    photo: bySlug(slug)?.photo,
+  };
+
   switch (slug) {
     /* ------------------------------------------------ CORE — the CAN bus box */
     case "core":
       return (
-        <Shell gid={gid} className={className} style={style} svgRef={ref}>
+        <Shell {...shell}>
           <Part i={6} dx={-34} dy={30} rot={-12}>
             <Cable d="M62 132 C 30 140, 24 158, 40 170" />
           </Part>
@@ -259,7 +291,7 @@ export default function DeviceArt({ slug, className, style, ref }: ArtProps) {
     /* ------------------------------------------- EDGE — plug-and-play, larger */
     case "edge":
       return (
-        <Shell gid={gid} className={className} style={style} svgRef={ref}>
+        <Shell {...shell}>
           <Part i={5} dx={-30} dy={34} rot={14}>
             <Cable d="M100 142 C 100 162, 86 168, 68 172" />
           </Part>
@@ -291,7 +323,7 @@ export default function DeviceArt({ slug, className, style, ref }: ArtProps) {
     /* ------------------------------------------------ LITE — small, one cable */
     case "lite":
       return (
-        <Shell gid={gid} className={className} style={style} svgRef={ref}>
+        <Shell {...shell}>
           <Part i={4} dx={36} dy={26} rot={16}>
             <Cable d="M100 136 C 100 156, 120 162, 140 166" />
           </Part>
@@ -316,7 +348,7 @@ export default function DeviceArt({ slug, className, style, ref }: ArtProps) {
     /* ------------------------------------------ OBD — the trapezoid connector */
     case "obd":
       return (
-        <Shell gid={gid} className={className} style={style} svgRef={ref}>
+        <Shell {...shell}>
           <Part i={1} dx={24} dy={-34} rot={-8}>
             <BoxShell gid={gid} x={62} y={62} w={76} h={56} d={18} r={8} />
           </Part>
@@ -353,7 +385,7 @@ export default function DeviceArt({ slug, className, style, ref }: ArtProps) {
     /* -------------------------------------- LINK — sealed, no cable, antenna */
     case "link":
       return (
-        <Shell gid={gid} className={className} style={style} svgRef={ref}>
+        <Shell {...shell}>
           <Part i={1} dx={26} dy={-34} rot={-8}>
             <BoxShell gid={gid} x={58} y={64} w={84} h={76} d={20} r={20} />
           </Part>
@@ -400,7 +432,7 @@ export default function DeviceArt({ slug, className, style, ref }: ArtProps) {
     /* ------------------- LINK mini — 84 × 63 × 24 mm, held to that proportion */
     case "link-mini":
       return (
-        <Shell gid={gid} className={className} style={style} svgRef={ref}>
+        <Shell {...shell}>
           <Part i={1} dx={20} dy={-28} rot={-9}>
             <BoxShell gid={gid} x={68} y={82} w={64} h={48} d={14} r={12} />
           </Part>
@@ -437,7 +469,7 @@ export default function DeviceArt({ slug, className, style, ref }: ArtProps) {
     /* --------------------------------------------- VOLT — long-life, elongated */
     case "volt":
       return (
-        <Shell gid={gid} className={className} style={style} svgRef={ref}>
+        <Shell {...shell}>
           <Part i={1} dx={24} dy={-30} rot={-7}>
             <BoxShell gid={gid} x={44} y={82} w={112} h={54} d={18} r={14} />
           </Part>
@@ -472,7 +504,7 @@ export default function DeviceArt({ slug, className, style, ref }: ArtProps) {
     /* ------------------------------------------------------- DOT — a BLE puck */
     case "dot":
       return (
-        <Shell gid={gid} className={className} style={style} svgRef={ref}>
+        <Shell {...shell}>
           {/* puck body: an ellipse extruded downward */}
           <Part i={0}>
             <path d="M52 108 L52 122 A48 20 0 0 0 148 122 L148 108Z" fill={`url(#${gid}-side)`} />
@@ -513,7 +545,7 @@ export default function DeviceArt({ slug, className, style, ref }: ArtProps) {
     /* ------------------------------------------- SOLAR — panel face, sun above */
     case "solar":
       return (
-        <Shell gid={gid} className={className} style={style} svgRef={ref}>
+        <Shell {...shell}>
           <Part i={1} dx={20} dy={-24} rot={-6}>
             <BoxShell gid={gid} x={54} y={96} w={92} h={44} d={18} r={7} />
           </Part>
@@ -564,7 +596,7 @@ export default function DeviceArt({ slug, className, style, ref }: ArtProps) {
     /* ------------------------------------------- TAG — passive disc, QR + NFC */
     case "tag":
       return (
-        <Shell gid={gid} className={className} style={style} svgRef={ref}>
+        <Shell {...shell}>
           <Part i={0}>
             <circle cx={100} cy={104} r="52" fill={`url(#${gid}-front)`} stroke="#7f8b99" strokeOpacity="0.34" />
             <circle cx={100} cy={104} r="52" fill={`url(#${gid}-spec)`} opacity="0.35" />
@@ -622,7 +654,7 @@ export default function DeviceArt({ slug, className, style, ref }: ArtProps) {
 
     default:
       return (
-        <Shell gid={gid} className={className} style={style} svgRef={ref}>
+        <Shell {...shell}>
           <Part i={1} dx={22} dy={-30} rot={-8}>
             <BoxShell gid={gid} x={62} y={72} w={76} h={64} d={18} r={8} />
           </Part>
