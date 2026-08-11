@@ -313,7 +313,7 @@ export default function Nav() {
                       </AnimatePresence>
                     </div>
                     <p className="hud-tight leading-relaxed text-[var(--faint)]">
-                      Ten units. Wired, self-powered, or off the grid entirely.
+                      Seven units. Wired, self-powered, or off the grid entirely.
                     </p>
                   </div>
                 </div>

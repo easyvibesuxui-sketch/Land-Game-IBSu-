@@ -87,7 +87,7 @@ export default function Hero() {
               </p>
             </div>
             <p className="text-sm leading-relaxed text-[var(--muted)]">
-              Ten telematics units for construction machinery — wired boxes reading the CAN
+              Seven telematics units for construction machinery — wired boxes reading the CAN
               bus, self-powered trackers for anything without a supply, and passive tags for
               the tools too small to carry either.
             </p>

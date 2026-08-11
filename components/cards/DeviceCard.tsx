@@ -23,7 +23,13 @@ const GROUP_SHORT: Record<PowerClass, string> = {
  */
 export default function DeviceCard({ device, className = "" }: { device: Device; className?: string }) {
   const reduced = useReduced();
-  const centred = device.shape === "circle" || device.shape === "arch";
+  /* Shapes whose bottom corners curve away can't hold a left-aligned name
+     plate — it lands outside the silhouette — so those centre theirs. */
+  const centred =
+    device.shape === "circle" || device.shape === "arch" || device.shape === "capsule";
+  /* Cards that span two columns on one row: the unit sits to the right, taller
+     than the card, with the name plate holding the left. */
+  const band = device.shape === "wide" || device.shape === "beveled";
   const assembly = useAssemblyOnEnter<SVGSVGElement>(120);
   const isCircle = device.shape === "circle";
 
@@ -48,16 +54,19 @@ export default function DeviceCard({ device, className = "" }: { device: Device;
          * it — or the class label gets sheared off by the clip.
          */}
         <div
-          className={`absolute inset-x-0 top-0 z-10 flex items-start justify-between gap-3 p-5 ${
+          className={`absolute inset-x-0 top-0 z-10 flex items-start gap-3 p-5 ${
+            /* The arch is a full dome across a 2×2 cell — anywhere near its
+               corners is outside the shape, so its labels sit centred under
+               the apex instead of pushed into them. */
+            device.shape === "arch" ? "justify-center gap-10 pt-9" : "justify-between"
+          } ${
             device.shape === "circle"
               ? "px-12 pt-9"
               : device.shape === "capsule"
-                ? "px-9"
+                ? "px-14 pt-7"
                 : device.shape === "beveled"
                   ? "pr-16"
-                  : device.shape === "arch"
-                    ? "px-8 pt-7"
-                    : ""
+                  : ""
           }`}
         >
           <span className="hud-tight shrink-0 text-[var(--faint)] transition-colors duration-500 group-hover:text-[var(--accent)]">
@@ -76,7 +85,7 @@ export default function DeviceCard({ device, className = "" }: { device: Device;
          */}
         <motion.div
           className={`absolute inset-0 z-[1] flex items-center ${
-            device.shape === "wide"
+            band
               ? "justify-end pr-5"
               : device.shape === "circle"
                 ? "justify-center px-12 pb-20 pt-14"
@@ -91,9 +100,7 @@ export default function DeviceCard({ device, className = "" }: { device: Device;
           <DeviceArt
             slug={device.slug}
             ref={assembly}
-            className={
-              device.shape === "wide" ? "h-[124%] w-auto" : "h-full w-auto max-w-full"
-            }
+            className={band ? "h-[124%] w-auto" : "h-full w-auto max-w-full"}
           />
         </motion.div>
 
@@ -103,9 +110,12 @@ export default function DeviceCard({ device, className = "" }: { device: Device;
             centred ? "text-center" : ""
           } ${device.shape === "circle" ? "pb-10" : ""}`}
         >
+          {/* Every alignment utility comes from one branch: Tailwind emits its
+              utilities in its own order, so pairing a base `items-end` with a
+              conditional `items-center` lets the base silently win. */}
           <div
-            className={`flex items-end gap-3 ${
-              centred ? "flex-col items-center gap-1" : "justify-between"
+            className={`flex ${
+              centred ? "flex-col items-center gap-1" : "items-end justify-between gap-3"
             }`}
           >
             <h3 className="device-name text-2xl leading-none text-[var(--text)] md:text-3xl">

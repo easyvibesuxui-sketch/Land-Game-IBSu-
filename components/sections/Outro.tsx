@@ -14,7 +14,7 @@ export default function Outro() {
       <div className="shell relative">
         <Parallax depth={30}>
           <h2 className="display mb-16 max-w-[12ch] text-[var(--text)]">
-            <Reveal>Ten units</Reveal>
+            <Reveal>Seven units</Reveal>
             <Reveal delay={0.08}>One range</Reveal>
           </h2>
         </Parallax>

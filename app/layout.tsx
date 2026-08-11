@@ -20,7 +20,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "syniotec · devices",
   description:
-    "Ten telematics units for construction machinery — wired CAN bus boxes, self-powered trackers and passive tags.",
+    "Seven telematics units for construction machinery — wired CAN bus boxes, self-powered trackers and passive tags.",
 };
 
 export default function RootLayout({

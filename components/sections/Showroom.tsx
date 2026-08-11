@@ -7,27 +7,23 @@ import Parallax from "@/components/Parallax";
 import { Reveal, FadeUp } from "@/components/Reveal";
 
 /*
- * Ten devices, deliberately not ten identical rectangles. Each card is placed
- * by area name so the silhouettes interlock; the whole thing collapses to one
- * column below 900px, where the extreme radii would read as broken.
- */
-/*
- * Areas are matched to silhouettes, not assigned arbitrarily: the arch gets the
- * 2×2 block, the tall box a 1×2 column, the wide cards a 2×1 band, and the
- * circle and capsules land on single square cells so they stay round rather
- * than stretching into ellipses.
+ * Seven devices, deliberately not seven identical rectangles. Each card is
+ * placed by area name so the silhouettes interlock; the whole thing collapses
+ * to one column below 900px, where the extreme radii would read as broken.
+ *
+ * Areas follow each unit's photograph, not an arbitrary pattern: CORE stands
+ * portrait so it takes the 2×2 block, SOLAR is a tall panel and gets the 1×2
+ * column, TAG is a landscape plate and gets the 2×1 band, and the rest sit on
+ * square cells where the circle stays round rather than stretching.
  */
 const AREAS: Record<string, string> = {
-  core: "a", // arch    · 2 × 2
-  edge: "b", // tall    · 1 × 2
-  "link-mini": "c", // capsule · 1 × 1
-  tag: "d", // circle  · 1 × 1
-  lite: "e", // wide    · 2 × 1
-  link: "f", // squircle· 1 × 1
-  obd: "g", // squircle· 1 × 1
-  volt: "h", // wide    · 2 × 1
-  solar: "i", // beveled · 1 × 1
-  dot: "j", // capsule · 1 × 1
+  core: "a", //  arch     · 2 × 2
+  solar: "b", // tall     · 1 × 2
+  obd: "c", //   capsule  · 1 × 1
+  link: "d", //  circle   · 1 × 1
+  lite: "e", //  squircle · 1 × 1
+  volt: "f", //  squircle · 1 × 1
+  tag: "g", //   beveled  · 2 × 1
 };
 
 /* Alternating parallax depths give the grid its drift as you pass it. */
@@ -35,14 +31,11 @@ const AREAS: Record<string, string> = {
    neighbouring cards into each other's cells. */
 const DEPTH: Record<string, number> = {
   core: 16,
-  edge: -10,
-  "link-mini": 20,
-  lite: -8,
+  solar: -10,
   obd: 12,
   link: -16,
+  lite: -8,
   volt: 9,
-  dot: -18,
-  solar: 14,
   tag: -11,
 };
 
@@ -58,7 +51,7 @@ export default function Showroom() {
           </h2>
           <FadeUp delay={0.15} className="max-w-sm">
             <p className="text-sm leading-relaxed text-[var(--muted)]">
-              Ten units, one platform. Pick by how the asset is powered, not by what it
+              Seven units, one platform. Pick by how the asset is powered, not by what it
               costs — the network and the data are the same either way.
             </p>
           </FadeUp>
@@ -86,19 +79,18 @@ export default function Showroom() {
           grid-template-areas:
             "a a b c"
             "a a b d"
-            "e e f g"
-            "h h i j";
+            "e f g g";
         }
         @media (max-width: 1180px) {
           .device-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
             grid-template-areas:
               "a a"
+              "a a"
               "b c"
-              "d e"
-              "f g"
-              "h h"
-              "i j";
+              "b d"
+              "e f"
+              "g g";
           }
         }
         @media (max-width: 900px) {
@@ -106,7 +98,7 @@ export default function Showroom() {
             grid-template-columns: minmax(0, 1fr);
             grid-auto-rows: 300px;
             grid-template-areas:
-              "a" "b" "c" "d" "e" "f" "g" "h" "i" "j";
+              "a" "b" "c" "d" "e" "f" "g";
           }
         }
       `}</style>

@@ -5,10 +5,14 @@ import { type CSSProperties, type ReactNode, type Ref, useId } from "react";
 import { bySlug } from "@/lib/devices";
 
 /*
- * Product photography can't be sourced, so each unit is drawn. Proportions
- * follow the published dimensions where they exist (LINK mini is 84 × 63 × 24,
- * TAG is a disc, DOT a puck, SOLAR carries a panel face). Chrome is a shared
- * gradient vocabulary; the red LED is the only colour that ever lights up.
+ * Each unit is drawn from its product photograph — the lobed flange and screw
+ * bosses on LINK, LITE's fused flying lead, TAG's chamfered plate. Chrome is a
+ * shared gradient vocabulary; the red LED is the only colour that ever lights
+ * up.
+ *
+ * The drawings are not decoration for their own sake: they carry the exploded
+ * state, which a photograph cannot, and hand over to the photograph as the unit
+ * assembles. A device with no photograph simply keeps its drawing.
  *
  * Every element sits inside a <Part>, which carries the displacement it takes
  * when the device is exploded. See `useAssembly.ts` and the .device-part rules
@@ -360,37 +364,6 @@ export default function DeviceArt({ slug, className, style, ref }: ArtProps) {
         </Shell>
       );
 
-    /* ------------------------------------------- EDGE — plug-and-play, larger */
-    case "edge":
-      return (
-        <Shell {...shell}>
-          <Part i={5} dx={-30} dy={34} rot={14}>
-            <Cable d="M100 142 C 100 162, 86 168, 68 172" />
-          </Part>
-          <Part i={1} dx={28} dy={-38} rot={-7}>
-            <BoxShell gid={gid} x={50} y={54} w={100} h={88} d={22} r={8} />
-          </Part>
-          <Part i={0}>
-            <BoxFace gid={gid} x={50} y={54} w={100} h={88} r={8} />
-          </Part>
-          <Part i={4} dy={40}>
-            <rect x={84} y={136} width={32} height={12} rx={3} fill="#05070a" />
-            <rect x={90} y={139} width={20} height={6} rx={1.5} fill="#8d99a8" opacity="0.6" />
-          </Part>
-          <Part i={2} dx={-16} dy={-30}>
-            <rect x={62} y={70} width={76} height={40} rx={4} fill="#05070a" opacity="0.55" />
-            <Grille x={70} y={80} rows={3} cols={7} gap={9} />
-          </Part>
-          <Part i={3} dx={34} dy={18}>
-            <Led gid={gid} cx={132} cy={126} />
-          </Part>
-          <Part i={5} dx={-28} dy={14}>
-            <text x={62} y={126} {...LABEL}>
-              EDGE
-            </text>
-          </Part>
-        </Shell>
-      );
 
     /*
      * LITE — the flat black box with a corner tab at each end, the silkscreened
@@ -609,61 +582,6 @@ export default function DeviceArt({ slug, className, style, ref }: ArtProps) {
         </Shell>
       );
 
-    /* --------- LINK mini — the same housing, 84 × 63 × 24 mm of it */
-    case "link-mini":
-      return (
-        <Shell {...shell}>
-          <Part i={0}>
-            <path d="M62 92 h-11 a6 6 0 0 0 -6 6 v16 a6 6 0 0 0 6 6 h11 z" fill={`url(#${gid}-side)`} />
-            <path d="M138 92 h11 a6 6 0 0 1 6 6 v16 a6 6 0 0 1 -6 6 h-11 z" fill={`url(#${gid}-side)`} />
-            <Hole cx={53} cy={106} r={3.2} />
-            <Hole cx={147} cy={106} r={3.2} />
-            <rect
-              x={62}
-              y={62}
-              width={76}
-              height={88}
-              rx={12}
-              fill={`url(#${gid}-front)`}
-              stroke="#4a525c"
-              strokeOpacity="0.45"
-            />
-          </Part>
-
-          <Part i={1} dx={18} dy={-42} rot={-10}>
-            <rect x={71} y={72} width={58} height={68} rx={10} fill={`url(#${gid}-top)`} />
-            <rect x={71} y={72} width={58} height={68} rx={10} fill={`url(#${gid}-spec)`} opacity="0.18" />
-            <rect x={71} y={72} width={58} height={68} rx={10} fill="none" stroke="#5c646f" strokeOpacity="0.4" />
-            <path d="M100 84 L100 128" stroke="#39414a" strokeWidth="1" />
-          </Part>
-
-          {(
-            [
-              [100, 60, -28],
-              [100, 152, 28],
-              [68, 70, -22],
-              [132, 70, -22],
-              [68, 142, 22],
-              [132, 142, 22],
-            ] as const
-          ).map(([cx, cy, dy], i) => (
-            <Part key={i} i={3} dx={(cx - 100) * 0.5} dy={dy}>
-              <Boss cx={cx} cy={cy} r={4.2} />
-            </Part>
-          ))}
-
-          {/* dimension callout — the size is the story here */}
-          <Part i={5} dy={34}>
-            <g opacity="0.5">
-              <path d="M62 160 L138 160" stroke="#6e7a89" strokeWidth="0.8" />
-              <path d="M62 157 L62 163 M138 157 L138 163" stroke="#6e7a89" strokeWidth="0.8" />
-              <text x={100} y={172} fill="#8d99a8" fontSize="7" textAnchor="middle" letterSpacing="1.2">
-                84 mm
-              </text>
-            </g>
-          </Part>
-        </Shell>
-      );
 
     /* --------------------------------------------- VOLT — long-life, elongated */
     case "volt":
@@ -726,46 +644,6 @@ export default function DeviceArt({ slug, className, style, ref }: ArtProps) {
         </Shell>
       );
 
-    /* ------------------------------------------------------- DOT — a BLE puck */
-    case "dot":
-      return (
-        <Shell {...shell}>
-          {/* puck body: an ellipse extruded downward */}
-          <Part i={0}>
-            <path d="M52 108 L52 122 A48 20 0 0 0 148 122 L148 108Z" fill={`url(#${gid}-side)`} />
-          </Part>
-          <Part i={1} dy={-40}>
-            <ellipse cx={100} cy={108} rx={48} ry={20} fill={`url(#${gid}-top)`} />
-            <ellipse cx={100} cy={108} rx={48} ry={20} fill="none" stroke="#7f8b99" strokeOpacity="0.34" />
-          </Part>
-          <Part i={2} dy={-24}>
-            <ellipse cx={100} cy={106} rx={34} ry={13} fill="#05070a" opacity="0.5" />
-          </Part>
-          {/* bluetooth advertisement pings */}
-          {[0, 1, 2].map((i) => (
-            <Part key={i} i={4 + i} dy={-14 - i * 12}>
-              <ellipse
-                cx={100}
-                cy={108}
-                rx={54 + i * 16}
-                ry={22 + i * 7}
-                stroke="var(--signal)"
-                strokeWidth="1.1"
-                opacity={0.34 - i * 0.1}
-                fill="none"
-              />
-            </Part>
-          ))}
-          <Part i={3} dy={-30}>
-            <Led gid={gid} cx={100} cy={104} />
-          </Part>
-          <Part i={3} dy={30}>
-            <text x={100} y={140} {...LABEL} letterSpacing={2.6} textAnchor="middle">
-              DOT
-            </text>
-          </Part>
-        </Shell>
-      );
 
     /* ------------------------------------------- SOLAR — panel face, sun above */
     case "solar":
