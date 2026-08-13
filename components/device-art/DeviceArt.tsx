@@ -2,6 +2,7 @@
 
 import { type CSSProperties, type ReactNode, type Ref, useId } from "react";
 
+import { asset } from "@/lib/asset";
 import { bySlug } from "@/lib/devices";
 
 /*
@@ -137,7 +138,7 @@ function Shell({
           <g className="device-drawn">{children}</g>
           <image
             className="device-photo"
-            href={photo}
+            href={asset(photo)}
             x="16"
             y="10"
             width="168"
