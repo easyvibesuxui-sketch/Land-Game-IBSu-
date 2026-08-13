@@ -1,7 +1,6 @@
 "use client";
 
 import { devices } from "@/lib/devices";
-import Backdrop from "@/components/Backdrop";
 import DeviceCard from "@/components/cards/DeviceCard";
 import Parallax from "@/components/Parallax";
 import { Reveal, FadeUp } from "@/components/Reveal";
@@ -42,7 +41,6 @@ const DEPTH: Record<string, number> = {
 export default function Showroom() {
   return (
     <section id="showroom" className="relative overflow-hidden py-28 md:py-40">
-      <Backdrop tilt={12} intensity={0.7} className="opacity-70" />
 
       <div className="shell relative">
         <div className="mb-16 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">

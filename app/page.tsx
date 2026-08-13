@@ -1,4 +1,5 @@
 import Hero from "@/components/sections/Hero";
+import Showcase from "@/components/sections/Showcase";
 import Marquee from "@/components/Marquee";
 import Showroom from "@/components/sections/Showroom";
 import ClassFlip from "@/components/sections/ClassFlip";
@@ -8,8 +9,9 @@ import Outro from "@/components/sections/Outro";
 export default function Home() {
   return (
     <>
-      <Hero />
-      <Marquee
+      <Showcase>
+        <Hero />
+        <Marquee
         items={[
           "CAN BUS",
           "LTE-M",
@@ -22,8 +24,9 @@ export default function Home() {
           "5 YEAR BATTERY",
           "PLUG AND PLAY",
         ]}
-      />
-      <Showroom />
+        />
+        <Showroom />
+      </Showcase>
       <ClassFlip />
       <SpecIndex />
       <Outro />

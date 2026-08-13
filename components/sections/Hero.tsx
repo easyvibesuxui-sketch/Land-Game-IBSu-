@@ -1,12 +1,10 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform } from "motion/react";
+import { motion, useTransform } from "motion/react";
 import { useReduced } from "@/lib/useReduced";
+import { useSectionProgress } from "@/lib/useSectionProgress";
 import { EASE } from "@/lib/motion";
-import Backdrop from "@/components/Backdrop";
-import { HERO_BG } from "@/lib/backdrop";
-import HeroSequence from "@/components/HeroSequence";
 import GlassTile from "@/components/cards/GlassTile";
 import DeviceArt from "@/components/device-art/DeviceArt";
 import { RevealLines, FadeUp } from "@/components/Reveal";
@@ -25,24 +23,18 @@ const STATS = [
 
 /*
  * The hero runs two and a bit viewport-heights tall and pins its contents for
- * the first one: that extra height is the scroll budget the VOLT teardown is
- * scrubbed against. Without it the unit would have to assemble in the few
- * hundred pixels before the range arrives, which is too fast to read.
+ * the first one. That extra height is the scroll budget the VOLT teardown is
+ * scrubbed against — the teardown itself belongs to Showcase, which carries it
+ * behind this section and the two after it.
  */
 export default function Hero() {
   const ref = useRef<HTMLElement>(null);
   const reduced = useReduced();
 
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    /* `end end` puts progress 1 exactly where the sticky frame unpins, so the
-       assembly finishes while the unit is still on screen. */
-    offset: ["start start", "end end"],
-  });
+  /* 0 at the top of the section, 1 where its bottom meets the viewport bottom
+     — which is exactly where the pinned frame unpins. */
+  const scrollYProgress = useSectionProgress(ref);
 
-  /* Depths, so the frame separates as the page leaves. */
-  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
-  const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.14]);
   /* Kept shallow: the pinned frame is over two screens tall, so a deep offset
      travels far enough to lift the mosaic over the paragraph on one column. */
   const titleY = useTransform(scrollYProgress, [0, 1], ["0%", "-22%"]);
@@ -50,52 +42,12 @@ export default function Hero() {
   /* Content holds through the assembly and only leaves once the unit is whole. */
   const fade = useTransform(scrollYProgress, [0, 0.82, 0.97], [1, 1, 0]);
   const cue = useTransform(scrollYProgress, [0, 0.16], [1, 0]);
-  /* The unit grows a little as it comes together, and drifts up on the way out. */
-  const unitScale = useTransform(scrollYProgress, [0, 0.78], [0.9, 1.05]);
-  const unitY = useTransform(scrollYProgress, [0, 1], ["3%", "-12%"]);
 
   const s = (v: unknown) => (reduced ? undefined : (v as never));
 
   return (
     <section ref={ref} id="hero" className="relative h-[240svh] w-full">
       <div className="sticky top-0 h-svh w-full overflow-hidden">
-        <motion.div className="absolute inset-0" style={{ y: s(bgY), scale: s(bgScale) }}>
-          <Backdrop tilt={-6} image={HERO_BG} />
-        </motion.div>
-        <div aria-hidden className="blueprint absolute inset-0" />
-
-        {/* the teardown, assembling as you scroll — the wrapper stays
-            transform-free so the canvas can blend with the page behind it */}
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex w-full items-start justify-center pt-[11svh] lg:w-[56%] lg:items-center lg:justify-end lg:pb-[13svh] lg:pr-[3vw] lg:pt-0">
-          <HeroSequence
-            progress={scrollYProgress}
-            className="h-auto w-[86%] max-w-[420px] opacity-40 lg:w-full lg:max-w-[580px] lg:opacity-100"
-            style={{ scale: s(unitScale), y: s(unitY) }}
-          />
-        </div>
-
-        {/* One column on a phone means the type sits over the unit, so the
-            lower half is scrimmed off there and only there. */}
-        <div
-          aria-hidden
-          className="absolute inset-0 lg:hidden"
-          style={{
-            background:
-              "linear-gradient(180deg, transparent 0%, rgba(5,5,7,0.5) 24%, rgba(5,5,7,0.93) 46%)",
-          }}
-        />
-
-        {/* Scrim on the type side — the reference keeps its left third dark so
-            the headline never has to fight the render behind it. */}
-        <div
-          aria-hidden
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(100deg, rgba(5,5,7,0.94) 0%, rgba(5,5,7,0.72) 34%, rgba(5,5,7,0.25) 58%, transparent 76%)",
-          }}
-        />
-
         <motion.div
           className="shell relative flex h-svh flex-col justify-end pb-14 pt-[var(--nav-h)]"
           style={{ opacity: s(fade) }}
