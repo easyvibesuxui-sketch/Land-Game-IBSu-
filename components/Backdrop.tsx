@@ -2,6 +2,7 @@
 
 import { useId } from "react";
 import { motion } from "motion/react";
+import { asset } from "@/lib/asset";
 import { useReduced } from "@/lib/useReduced";
 
 /**
@@ -18,6 +19,13 @@ type Props = {
   tilt?: number;
   intensity?: number;
   className?: string;
+  /**
+   * Photographic plate laid under the drawn layer. See lib/backdrop.ts — it is
+   * additive: with no image the generated backdrop is unchanged.
+   */
+  image?: string | null;
+  /** How far the plate drifts under the wires, in percent of its own height. */
+  imageOpacity?: number;
 };
 
 /** Deterministic pseudo-random, so server and client draw the same wires. */
@@ -61,7 +69,13 @@ function buildWires(seed: number, count: number): Wire[] {
   return wires;
 }
 
-export default function Backdrop({ tilt = 0, intensity = 1, className }: Props) {
+export default function Backdrop({
+  tilt = 0,
+  intensity = 1,
+  className,
+  image = null,
+  imageOpacity = 0.55,
+}: Props) {
   const reduced = useReduced();
   const uid = useId().replace(/:/g, "");
   const wires = buildWires(Math.round(Math.abs(tilt) * 977 + 41), 21);
@@ -80,6 +94,28 @@ export default function Backdrop({ tilt = 0, intensity = 1, className }: Props) 
             "radial-gradient(125% 95% at 64% 26%, #241a1d 0%, #0d0a0c 46%, #050406 100%)",
         }}
       />
+
+      {/*
+        The photographic plate, if one exists. It sits above the deep field and
+        below everything drawn, so the wires and the hot core still animate over
+        it. Scaled slightly past the frame so a parallax shift never exposes an
+        edge.
+      */}
+      {image && (
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: `url(${asset(image)})`,
+            opacity: imageOpacity,
+            transform: "scale(1.06)",
+            /* Darkest at the top left, where the headline sits. */
+            maskImage:
+              "linear-gradient(105deg, transparent 0%, rgba(0,0,0,0.55) 34%, #000 68%)",
+            WebkitMaskImage:
+              "linear-gradient(105deg, transparent 0%, rgba(0,0,0,0.55) 34%, #000 68%)",
+          }}
+        />
+      )}
 
       {/* Hot core — the key light the wires catch */}
       <motion.div

@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform } from "motion/react";
 import { useReduced } from "@/lib/useReduced";
 import { EASE } from "@/lib/motion";
 import Backdrop from "@/components/Backdrop";
+import { HERO_BG } from "@/lib/backdrop";
 import GlassTile from "@/components/cards/GlassTile";
 import DeviceArt from "@/components/device-art/DeviceArt";
 import { RevealLines, FadeUp } from "@/components/Reveal";
@@ -46,7 +47,7 @@ export default function Hero() {
       className="relative min-h-[100svh] w-full overflow-hidden"
     >
       <motion.div className="absolute inset-0" style={{ y: s(bgY), scale: s(bgScale) }}>
-        <Backdrop tilt={-6} />
+        <Backdrop tilt={-6} image={HERO_BG} />
       </motion.div>
       <div aria-hidden className="blueprint absolute inset-0" />
       {/* Scrim on the type side — the reference keeps its left third dark so the

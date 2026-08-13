@@ -16,6 +16,20 @@ const SRC = "assets/product-photos";
 const DST = "public/devices";
 const MAX = 900;
 
+/*
+ * Background plates are handled separately: they are full-bleed, so they are
+ * not trimmed and they get a wider cap and a lower quality — a backdrop under
+ * a dark scrim shows compression far less than a product does.
+ */
+const BG_SRC = "assets/backgrounds";
+const BG_DST = "public/bg";
+const BG_MAX = 1920;
+
+/** file in assets/backgrounds → name under public/bg */
+const BACKGROUNDS = {
+  "hero.png": "hero",
+};
+
 /** slug in lib/devices.ts → master filename */
 const MAP = {
   core: "Core (Neu).png",
@@ -36,4 +50,19 @@ for (const [slug, name] of Object.entries(MAP)) {
     .toFile(out);
   const kb = Math.round(fs.statSync(out).size / 1024);
   console.log(`${slug.padEnd(6)} ${`${info.width}x${info.height}`.padEnd(11)} ${String(kb).padStart(4)} KB  ← ${name}`);
+}
+
+if (fs.existsSync(BG_SRC)) {
+  fs.mkdirSync(BG_DST, { recursive: true });
+  for (const [name, out_name] of Object.entries(BACKGROUNDS)) {
+    const from = path.join(BG_SRC, name);
+    if (!fs.existsSync(from)) continue;
+    const out = path.join(BG_DST, `${out_name}.webp`);
+    const info = await sharp(from)
+      .resize({ width: BG_MAX, withoutEnlargement: true })
+      .webp({ quality: 72, effort: 6 })
+      .toFile(out);
+    const kb = Math.round(fs.statSync(out).size / 1024);
+    console.log(`${out_name.padEnd(6)} ${`${info.width}x${info.height}`.padEnd(11)} ${String(kb).padStart(4)} KB  ← ${name}`);
+  }
 }

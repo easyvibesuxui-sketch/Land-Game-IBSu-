@@ -8,6 +8,7 @@ import {
   motion,
   useMotionValueEvent,
   useScroll,
+  useSpring,
 } from "motion/react";
 import { devices, GROUPS } from "@/lib/devices";
 import { EASE, SPRING } from "@/lib/motion";
@@ -33,7 +34,9 @@ export default function Nav() {
   const [preview, setPreview] = useState<string | null>(null);
 
   const reduced = useReduced();
-  const { scrollY } = useScroll();
+  const { scrollY, scrollYProgress } = useScroll();
+  /* Eased, so the progress hairline glides instead of tracking every wheel tick. */
+  const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30, mass: 0.4 });
   const lastY = useRef(0);
   const idle = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -187,6 +190,13 @@ export default function Nav() {
             </button>
           </div>
         </div>
+
+        {/* how far down the page you are — a hairline under the bar */}
+        <motion.div
+          aria-hidden
+          className="h-px origin-left bg-[var(--accent)]"
+          style={{ scaleX: reduced ? 0 : progress }}
+        />
       </motion.header>
 
       {/* ------------------------------------------------------------ scrim */}

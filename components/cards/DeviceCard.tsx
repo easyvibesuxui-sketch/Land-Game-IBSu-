@@ -23,6 +23,9 @@ const GROUP_SHORT: Record<PowerClass, string> = {
  */
 export default function DeviceCard({ device, className = "" }: { device: Device; className?: string }) {
   const reduced = useReduced();
+  /* A slow, per-card idle drift. Offsetting the duration by index keeps the
+     grid from breathing in unison, which reads as a page-wide wobble. */
+  const drift = 6.5 + (Number(device.index) % 5) * 0.9;
   /* Shapes whose bottom corners curve away can't hold a left-aligned name
      plate — it lands outside the silhouette — so those centre theirs. */
   const centred =
@@ -93,8 +96,12 @@ export default function DeviceCard({ device, className = "" }: { device: Device;
                   ? "justify-center px-8 pb-16 pt-10"
                   : "justify-center px-4 pb-12 pt-9"
           }`}
-          whileHover={reduced ? undefined : { scale: 1.06, y: -6 }}
-          transition={{ duration: 0.7, ease: EASE }}
+          animate={reduced ? undefined : { y: [0, -7, 0] }}
+          whileHover={reduced ? undefined : { scale: 1.06, y: -12 }}
+          transition={{
+            y: { duration: drift, repeat: Infinity, ease: "easeInOut" },
+            default: { duration: 0.7, ease: EASE },
+          }}
         >
           {/* Parts fly in and knit together as the card enters the viewport. */}
           <DeviceArt
