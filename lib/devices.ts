@@ -11,6 +11,10 @@ export type Device = {
   fitFor: string[];
   specs: { label: string; value: string }[];
   metric: { value: string; label: string };
+  /**
+   * The silhouette this unit takes when it is shown on a glass tile. Kept per
+   * device rather than per surface so a unit reads the same wherever it lands.
+   */
   shape: "arch" | "capsule" | "wide" | "squircle" | "beveled" | "circle" | "tall";
   /**
    * Optional product photograph, e.g. "/devices/obd.webp" — a cut-out on

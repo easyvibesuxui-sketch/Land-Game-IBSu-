@@ -9,13 +9,13 @@ import { HERO_BG } from "@/lib/backdrop";
 import HeroSequence from "@/components/HeroSequence";
 
 /**
- * One pinned background for the whole dark half of the page — the hero, the
- * marquee and the range — with the VOLT teardown scrubbed across it.
+ * One pinned background for the dark half of the page — the hero and the
+ * marquee — with the VOLT teardown scrubbed across it.
  *
  * The atmosphere and the teardown live here rather than inside each section
- * because they have to be continuous: three sections each painting their own
- * backdrop would restart the gradient at every boundary and, worse, the later
- * ones would paint straight over the shared sequence.
+ * because they have to be continuous: sections each painting their own backdrop
+ * would restart the gradient at every boundary and, worse, the later ones would
+ * paint straight over the shared sequence.
  *
  * The layer stays pinned for the full run without occupying any height of its
  * own — see the note on the zero-height sticky box below.
@@ -26,14 +26,11 @@ export default function Showcase({ children }: { children: ReactNode }) {
 
   const scrollYProgress = useSectionProgress(ref);
 
-  /* The unit grows as it comes together and keeps drifting behind the range. */
-  const scale = useTransform(scrollYProgress, [0, 0.42, 1], [0.94, 1.04, 1.16]);
-  const y = useTransform(scrollYProgress, [0, 1], ["2%", "-8%"]);
-  /*
-   * Once the cards arrive the unit has to step back or the grid is unreadable
-   * over it, so a scrim rises across the handover.
-   */
-  const veil = useTransform(scrollYProgress, [0.42, 0.62], [0, 0.58]);
+  /* The unit grows as it comes together, then drifts on out. */
+  const scale = useTransform(scrollYProgress, [0, 0.9, 1], [0.94, 1.06, 1.1]);
+  const y = useTransform(scrollYProgress, [0, 1], ["2%", "-9%"]);
+  /* A scrim closes the run, so the handover to the light section is not a cut. */
+  const veil = useTransform(scrollYProgress, [0.86, 1], [0, 0.5]);
 
   const s = (v: unknown) => (reduced ? undefined : (v as never));
 
@@ -55,7 +52,7 @@ export default function Showcase({ children }: { children: ReactNode }) {
               nothing between it and the backdrop forms a blend group */}
           <HeroSequence
             progress={scrollYProgress}
-            completeAt={0.48}
+            completeAt={0.9}
             className="absolute inset-0 h-full w-full object-contain"
             style={{ scale: s(scale), y: s(y) }}
           />

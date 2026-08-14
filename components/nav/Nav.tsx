@@ -15,10 +15,10 @@ import { EASE, SPRING } from "@/lib/motion";
 import Mark from "./Mark";
 import DeviceArt from "@/components/device-art/DeviceArt";
 
+/* In page order. The devices are listed once, in the index. */
 const SECTIONS = [
-  { id: "showroom", label: "Devices" },
   { id: "rail", label: "Classes" },
-  { id: "index", label: "Index" },
+  { id: "index", label: "Devices" },
 ];
 
 /** Closed pill geometry — the panel's clip-path starts life exactly here. */
@@ -27,7 +27,7 @@ const PILL_H = 40;
 
 export default function Nav() {
   const [open, setOpen] = useState(false);
-  const [active, setActive] = useState("showroom");
+  const [active, setActive] = useState("rail");
   const [hidden, setHidden] = useState(false);
   const [dim, setDim] = useState(false);
   const [panel, setPanel] = useState({ w: 620, h: 660 });
