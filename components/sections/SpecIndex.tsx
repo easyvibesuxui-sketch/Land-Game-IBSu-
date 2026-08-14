@@ -6,6 +6,7 @@ import { motion, useScroll, useTransform } from "motion/react";
 import { useReduced } from "@/lib/useReduced";
 import { devices } from "@/lib/devices";
 import GlassTile from "@/components/cards/GlassTile";
+import { Reveal } from "@/components/Reveal";
 import DeviceArt from "@/components/device-art/DeviceArt";
 
 /**
@@ -45,8 +46,10 @@ export default function SpecIndex() {
             : "sticky top-0 flex h-[100svh] flex-col justify-center overflow-hidden"
         }
       >
-        <div className="shell mb-10 flex items-end justify-between">
-          <h2 className="display-sm text-[var(--text)]">Full index</h2>
+        <div className="shell mb-14 flex items-end justify-between">
+          <h2 className="display-sm text-[var(--text)]">
+            <Reveal>Full index</Reveal>
+          </h2>
           <span className="hud hidden md:block">
             {reduced ? "Scroll the rail" : "Scroll sideways"}
           </span>
@@ -67,7 +70,7 @@ export default function SpecIndex() {
 
         {/* progress hairline — meaningless once the rail scrolls on its own */}
         {!reduced && (
-          <div className="shell mt-10">
+          <div className="shell mt-14">
             <div className="relative h-px w-full bg-white/12">
               <motion.div
                 className="absolute inset-y-0 left-0 bg-[var(--accent)]"

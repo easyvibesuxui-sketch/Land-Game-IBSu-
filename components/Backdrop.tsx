@@ -11,7 +11,9 @@ import { useReduced } from "@/lib/useReduced";
  * swept diagonal filaments across the frame, which fought the hardware for
  * attention — a product this precise wants a measured field behind it, not
  * weather. What is left is a deep ground, one soft key light, a fine measuring
- * grid and a few full-width rules: instrument, not illustration.
+ * rules: instrument, not illustration. The measuring grid it used to draw now
+ * comes from the live one behind the whole page (components/ui/kinetic-grid),
+ * so this layer stays translucent and lets it through.
  *
  * `tilt` and `intensity` survive as the two dials each section uses: one places
  * the key light across the frame, the other sets the overall level.
@@ -51,7 +53,7 @@ export default function Backdrop({
       <div
         className="absolute inset-0"
         style={{
-          background: `radial-gradient(120% 90% at ${lightX}% 22%, #1a1418 0%, #0b0a0c 44%, #050406 100%)`,
+          background: `radial-gradient(120% 90% at ${lightX}% 22%, rgba(22,18,21,0.34) 0%, rgba(10,9,11,0.54) 44%, rgba(5,4,6,0.72) 100%)`,
         }}
       />
 
@@ -78,30 +80,18 @@ export default function Backdrop({
         style={{
           top: "16%",
           left: `${lightX}%`,
-          width: "70vw",
-          height: "70vw",
+          width: "58vw",
+          height: "58vw",
           maxWidth: 1100,
           maxHeight: 1100,
           transform: "translate(-50%, -50%)",
           borderRadius: "50%",
           filter: "blur(90px)",
           background:
-            "radial-gradient(circle, rgba(200,16,46,0.30) 0%, rgba(255,59,48,0.10) 42%, transparent 70%)",
+            "radial-gradient(circle, rgba(200,16,46,0.16) 0%, rgba(255,59,48,0.05) 42%, transparent 68%)",
         }}
         animate={reduced ? undefined : { scale: [1, 1.07, 1], opacity: [0.82, 1, 0.82] }}
         transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-      />
-
-      {/* Measuring grid — square, aligned, faint enough to be felt not read. */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,0.055) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.055) 1px, transparent 1px)",
-          backgroundSize: "120px 120px",
-          maskImage: `radial-gradient(115% 85% at ${lightX}% 26%, #000 15%, transparent 74%)`,
-          WebkitMaskImage: `radial-gradient(115% 85% at ${lightX}% 26%, #000 15%, transparent 74%)`,
-        }}
       />
 
       {/* A few full-width rules, the way a datasheet is ruled. */}

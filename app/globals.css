@@ -139,14 +139,14 @@ html.lenis body {
     isolation: isolate;
     background: linear-gradient(
       160deg,
-      rgba(255, 255, 255, 0.055) 0%,
-      rgba(255, 255, 255, 0.022) 38%,
-      rgba(255, 255, 255, 0.012) 100%
+      rgba(255, 255, 255, 0.075) 0%,
+      rgba(255, 255, 255, 0.032) 38%,
+      rgba(255, 255, 255, 0.018) 100%
     );
     backdrop-filter: blur(26px) saturate(125%);
     -webkit-backdrop-filter: blur(26px) saturate(125%);
     box-shadow:
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.11),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.14),
       inset 0 -1px 0 0 rgba(255, 255, 255, 0.03),
       inset 0 0 44px 0 rgba(255, 255, 255, 0.022),
       0 28px 70px -28px rgba(0, 0, 0, 0.9);
@@ -376,11 +376,20 @@ html.lenis body {
     mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
   }
 
+  /*
+    One measure for the whole site. The gutter is deliberately generous — the
+    quickest way a page reads as cheap is content pressed against its edges.
+  */
   .shell {
     width: 100%;
-    max-width: 1560px;
+    max-width: 1520px;
     margin-inline: auto;
-    padding-inline: clamp(1.25rem, 4vw, 4.5rem);
+    padding-inline: clamp(1.5rem, 5vw, 5.5rem);
+  }
+
+  /* Vertical rhythm, so no section invents its own spacing. */
+  .section-y {
+    padding-block: clamp(6rem, 13vh, 11rem);
   }
 
   .link-underline {

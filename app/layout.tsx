@@ -5,6 +5,7 @@ import SmoothScroll from "@/components/SmoothScroll";
 import Filters from "@/components/Filters";
 import Nav from "@/components/nav/Nav";
 import Frame from "@/components/Frame";
+import KineticGrid from "@/components/ui/kinetic-grid";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,10 +31,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <KineticGrid asLayer />
         <Filters />
         <SmoothScroll />
         <Nav />
-        <main>{children}</main>
+        <main className="relative z-10">{children}</main>
         <Frame />
         <div aria-hidden className="grain" />
       </body>

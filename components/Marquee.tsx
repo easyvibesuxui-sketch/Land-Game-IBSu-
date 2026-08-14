@@ -44,7 +44,7 @@ export default function Marquee({
     <div
       ref={ref}
       aria-hidden
-      className={`relative overflow-hidden border-y border-white/10 py-4 ${className}`}
+      className={`relative overflow-hidden border-y border-white/10 py-6 ${className}`}
     >
       <motion.div style={{ x: reduced ? 0 : shove }}>
         <motion.div
