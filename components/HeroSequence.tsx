@@ -121,14 +121,11 @@ export default function HeroSequence({
       aria-hidden
       className={className}
       /*
-       * The clip is matted on pure black, so `screen` drops the matte entirely
-       * and the unit sits on the backdrop with no rectangle around it.
-       */
-      /*
-       * A feather on the top and bottom edges. The clip's own matte carries a
-       * couple of near-black rows that survive as a faint band against the
-       * backdrop; fading the edges removes them and costs nothing, since the
-       * unit never reaches the frame's edge.
+       * The clip is matted on pure black, so `screen` drops the matte and the
+       * unit sits on the backdrop with no rectangle around it. The feather on
+       * the top and bottom edges takes care of what `screen` cannot: the matte
+       * carries a couple of near-black rows that would otherwise survive as a
+       * faint band. It costs nothing — the unit never reaches the frame's edge.
        */
       style={{
         mixBlendMode: "screen",

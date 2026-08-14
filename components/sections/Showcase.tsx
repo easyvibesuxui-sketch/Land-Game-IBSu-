@@ -17,9 +17,8 @@ import HeroSequence from "@/components/HeroSequence";
  * backdrop would restart the gradient at every boundary and, worse, the later
  * ones would paint straight over the shared sequence.
  *
- * The layer is `sticky` and the content is pulled back over it with a negative
- * margin, so the layer stays pinned for the full run without occupying any
- * height of its own.
+ * The layer stays pinned for the full run without occupying any height of its
+ * own — see the note on the zero-height sticky box below.
  */
 export default function Showcase({ children }: { children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -49,41 +48,41 @@ export default function Showcase({ children }: { children: ReactNode }) {
       */}
       <div className="pointer-events-none sticky top-0 z-0 h-0 w-full">
         <div className="absolute left-0 top-0 h-svh w-full overflow-hidden">
-        <Backdrop tilt={-6} image={HERO_BG} />
-        <div aria-hidden className="blueprint absolute inset-0" />
+          <Backdrop tilt={-6} image={HERO_BG} />
+          <div aria-hidden className="blueprint absolute inset-0" />
 
-        {/* the teardown, full-bleed — the transform sits on the canvas itself so
-            nothing between it and the backdrop forms a blend group */}
-        <HeroSequence
-          progress={scrollYProgress}
-          completeAt={0.48}
-          className="absolute inset-0 h-full w-full object-contain"
-          style={{ scale: s(scale), y: s(y) }}
-        />
+          {/* the teardown, full-bleed — the transform sits on the canvas itself so
+              nothing between it and the backdrop forms a blend group */}
+          <HeroSequence
+            progress={scrollYProgress}
+            completeAt={0.48}
+            className="absolute inset-0 h-full w-full object-contain"
+            style={{ scale: s(scale), y: s(y) }}
+          />
 
-        {/* Scrim on the type side — the headline never has to fight the unit. */}
-        <div
-          aria-hidden
-          className="absolute inset-0"
-          style={{
-            background:
-              "linear-gradient(100deg, rgba(5,5,7,0.94) 0%, rgba(5,5,7,0.7) 32%, rgba(5,5,7,0.2) 58%, transparent 78%)",
-          }}
-        />
-        {/* One column on a phone puts the type straight over the unit. */}
-        <div
-          aria-hidden
-          className="absolute inset-0 lg:hidden"
-          style={{
-            background:
-              "linear-gradient(180deg, transparent 0%, rgba(5,5,7,0.5) 24%, rgba(5,5,7,0.93) 46%)",
-          }}
-        />
-        <motion.div
-          aria-hidden
-          className="absolute inset-0 bg-[var(--bg)]"
-          style={{ opacity: s(veil) }}
-        />
+          {/* Scrim on the type side — the headline never has to fight the unit. */}
+          <div
+            aria-hidden
+            className="absolute inset-0"
+            style={{
+              background:
+                "linear-gradient(100deg, rgba(5,5,7,0.94) 0%, rgba(5,5,7,0.7) 32%, rgba(5,5,7,0.2) 58%, transparent 78%)",
+            }}
+          />
+          {/* One column on a phone puts the type straight over the unit. */}
+          <div
+            aria-hidden
+            className="absolute inset-0 lg:hidden"
+            style={{
+              background:
+                "linear-gradient(180deg, transparent 0%, rgba(5,5,7,0.5) 24%, rgba(5,5,7,0.93) 46%)",
+            }}
+          />
+          <motion.div
+            aria-hidden
+            className="absolute inset-0 bg-[var(--bg)]"
+            style={{ opacity: s(veil) }}
+          />
         </div>
       </div>
 

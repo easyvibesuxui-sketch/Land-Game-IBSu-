@@ -61,12 +61,14 @@ export default function Marquee({
         </motion.div>
       </motion.div>
 
-      {/* fade the ends into the page rather than cutting them */}
+      {/* Fade the ends rather than cutting them. Partial rather than solid,
+          because the band now sits over the teardown and an opaque edge would
+          read as two bars laid across it. */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "linear-gradient(90deg, var(--bg) 0%, transparent 12%, transparent 88%, var(--bg) 100%)",
+            "linear-gradient(90deg, rgba(8,9,11,0.92) 0%, transparent 14%, transparent 86%, rgba(8,9,11,0.92) 100%)",
         }}
       />
     </div>
