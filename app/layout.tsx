@@ -4,6 +4,7 @@ import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import Filters from "@/components/Filters";
 import Nav from "@/components/nav/Nav";
+import Frame from "@/components/Frame";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,7 @@ export default function RootLayout({
         <SmoothScroll />
         <Nav />
         <main>{children}</main>
+        <Frame />
         <div aria-hidden className="grain" />
       </body>
     </html>

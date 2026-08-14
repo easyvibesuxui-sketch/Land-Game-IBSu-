@@ -38,7 +38,6 @@ export default function DeviceDetail({ device }: { device: Device }) {
       {/* ------------------------------------------------------------- hero */}
       <section ref={ref} className="relative min-h-[92svh] overflow-hidden">
         <Backdrop tilt={8} />
-        <div aria-hidden className="blueprint absolute inset-0" />
 
         <div className="shell relative grid min-h-[92svh] items-center gap-12 pb-20 pt-[calc(var(--nav-h)+4rem)] lg:grid-cols-2">
           <div>

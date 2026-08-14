@@ -46,7 +46,6 @@ export default function Showcase({ children }: { children: ReactNode }) {
       <div className="pointer-events-none sticky top-0 z-0 h-0 w-full">
         <div className="absolute left-0 top-0 h-svh w-full overflow-hidden">
           <Backdrop tilt={-6} image={HERO_BG} />
-          <div aria-hidden className="blueprint absolute inset-0" />
 
           {/* the teardown, full-bleed — the transform sits on the canvas itself so
               nothing between it and the backdrop forms a blend group */}
@@ -63,7 +62,7 @@ export default function Showcase({ children }: { children: ReactNode }) {
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(100deg, rgba(5,5,7,0.94) 0%, rgba(5,5,7,0.7) 32%, rgba(5,5,7,0.2) 58%, transparent 78%)",
+                "linear-gradient(100deg, rgba(5,5,7,0.9) 0%, rgba(5,5,7,0.58) 30%, rgba(5,5,7,0.12) 54%, transparent 72%)",
             }}
           />
           {/* One column on a phone puts the type straight over the unit. */}
