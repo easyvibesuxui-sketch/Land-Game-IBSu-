@@ -1,35 +1,37 @@
 "use client";
 
 import { useRef } from "react";
-import { motion, useScroll, useTransform } from "motion/react";
+import { motion, useTransform } from "motion/react";
 import { useReduced } from "@/lib/useReduced";
-import { GROUPS, byGroup } from "@/lib/devices";
-import DeviceArt from "@/components/device-art/DeviceArt";
+import { useSectionProgress } from "@/lib/useSectionProgress";
 
 /**
- * The reference's hard contrast flip: the page drops from near-black to a pale
- * concrete grey, and an oversized headline scales up while the section is
- * pinned. Numbered columns sit underneath, as [001] [002] [003].
+ * The hard contrast flip: the page drops from near-black to a pale concrete
+ * grey and one oversized statement scales up while the section is pinned.
+ *
+ * It is only the statement. It used to carry a row of class columns at the
+ * bottom, and the two could not share the frame — the headline is still at full
+ * size while the columns arrive, so they printed over each other. The columns
+ * are gone rather than shrunk: this is the page's one breath between the
+ * hardware and the index, and it works by holding a single idea.
  */
 export default function ClassFlip() {
   const ref = useRef<HTMLElement>(null);
   const reduced = useReduced();
 
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end end"],
-  });
+  const progress = useSectionProgress(ref);
 
   /*
-   * The headline must already be on screen the moment the section pins —
-   * ramping opacity from zero at progress 0 left a blank grey frame for the
-   * first stretch of the scroll.
+   * The statement is at full size well before the section releases — it used to
+   * still be growing as the pin ended, which read as never quite arriving.
    */
-  const scale = useTransform(scrollYProgress, [0, 0.55], [0.86, 1.42]);
-  const y = useTransform(scrollYProgress, [0, 1], ["4%", "-14%"]);
-  const headOpacity = useTransform(scrollYProgress, [0, 0.62, 0.76], [1, 1, 0]);
-  const colsOpacity = useTransform(scrollYProgress, [0.5, 0.7], [0, 1]);
-  const colsY = useTransform(scrollYProgress, [0.5, 0.75], [70, 0]);
+  const scale = useTransform(progress, [0, 0.62], [0.88, 1.34]);
+  const y = useTransform(progress, [0, 1], ["3%", "-9%"]);
+  /* Present from the first pinned frame — ramping from zero left a blank grey
+     screen for the opening stretch of the scroll, which reads as a bug. */
+  const opacity = useTransform(progress, [0, 0.88, 1], [1, 1, 0]);
+  /* The grey lifts as the statement lands, then settles again on the way out. */
+  const wash = useTransform(progress, [0, 0.55, 1], [0.35, 0.62, 0.3]);
 
   const s = (v: unknown) => (reduced ? undefined : (v as never));
 
@@ -37,23 +39,23 @@ export default function ClassFlip() {
     <section
       ref={ref}
       id="rail"
-      className="relative h-[300svh]"
+      className="relative h-[210svh]"
       style={{ background: "var(--light-bg)", color: "var(--light-text)" }}
     >
-      <div className="sticky top-0 flex h-[100svh] flex-col items-center justify-center overflow-hidden">
-        {/* grain sits on the light surface too, so it reads as one material */}
-        <div
+      <div className="sticky top-0 flex h-svh items-center justify-center overflow-hidden">
+        <motion.div
           aria-hidden
-          className="absolute inset-0 opacity-[0.5]"
+          className="absolute inset-0"
           style={{
+            opacity: s(wash),
             background:
-              "radial-gradient(120% 80% at 50% 20%, rgba(255,255,255,0.6), transparent 60%), radial-gradient(80% 60% at 80% 90%, rgba(200,16,46,0.16), transparent 70%)",
+              "radial-gradient(120% 80% at 50% 18%, rgba(255,255,255,0.7), transparent 60%), radial-gradient(80% 60% at 82% 92%, rgba(200,16,46,0.18), transparent 70%)",
           }}
         />
 
         <motion.h2
-          className="display relative text-center"
-          style={{ scale: s(scale), y: s(y), opacity: s(headOpacity) }}
+          className="display relative px-6 text-center"
+          style={{ scale: s(scale), y: s(y), opacity: s(opacity) }}
         >
           Wired
           <br />
@@ -61,50 +63,6 @@ export default function ClassFlip() {
           <br />
           Passive
         </motion.h2>
-
-        <motion.div
-          className="shell absolute inset-x-0 bottom-[8vh]"
-          style={{ opacity: s(colsOpacity), y: s(colsY) }}
-        >
-          <div className="grid gap-10 md:grid-cols-3">
-            {GROUPS.map((g, i) => (
-              <div key={g.id} className="border-t border-black/25 pt-5">
-                <div className="mb-4 flex items-start justify-between gap-4">
-                  <div>
-                    <p
-                      className="hud-tight mb-2"
-                      style={{ color: "rgba(22,24,28,0.55)" }}
-                    >
-                      {g.label}
-                    </p>
-                    <p className="max-w-[34ch] text-sm leading-relaxed" style={{ color: "rgba(22,24,28,0.78)" }}>
-                      {g.blurb}
-                    </p>
-                  </div>
-                  <span className="hud-tight shrink-0" style={{ color: "rgba(22,24,28,0.45)" }}>
-                    [{String(i + 1).padStart(3, "0")}]
-                  </span>
-                </div>
-                <div className="flex items-end gap-1">
-                  {byGroup(g.id).map((d) => (
-                    <div key={d.slug} className="group/unit relative">
-                      <DeviceArt
-                        slug={d.slug}
-                        className="h-14 w-14 opacity-70 transition-opacity duration-500 group-hover/unit:opacity-100"
-                      />
-                    </div>
-                  ))}
-                  <span
-                    className="hud-tight ml-auto"
-                    style={{ color: "rgba(22,24,28,0.5)" }}
-                  >
-                    {byGroup(g.id).length} units
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
       </div>
     </section>
   );
