@@ -19,6 +19,9 @@ import { cn } from "@/lib/utils";
  *    image sequence is a battery bill for an effect nobody is looking at.
  * 3. **It is drawn at device resolution** in the site's own palette. The
  *    original's blue is a demo default; this range is crimson and chrome.
+ * 4. **It drifts with the scroll.** The mesh is offset by a fraction of the
+ *    scroll position, modulo one cell, so the ground moves slower than the page
+ *    and never runs out of grid to show.
  */
 
 type Point = { x: number; y: number };
@@ -44,6 +47,8 @@ const NODE_ACTIVE_RADIUS = 2.6;
 
 /** Pointer within this many px of its target counts as settled. */
 const SETTLED = 0.4;
+/** How far the ground travels per pixel of scroll. */
+const PARALLAX = 0.16;
 
 type Rgba = { r: number; g: number; b: number; a: number };
 
@@ -94,6 +99,7 @@ export default function KineticGrid({
   const ripples = useRef<Ripple[]>([]);
   const raf = useRef(0);
   const size = useRef({ w: 0, h: 0 });
+  const scroll = useRef(0);
   /** Forces one more frame after the pointer settles, so it lands clean. */
   const dirty = useRef(true);
 
@@ -153,10 +159,12 @@ export default function KineticGrid({
       ctx.fillStyle = t.bg;
       ctx.fillRect(0, 0, W, H);
 
+      const dotShift = (scroll.current * PARALLAX) % DOT_SPACING;
+
       // Resting dot texture — the paper the grid is drawn on.
       ctx.fillStyle = "rgba(255,255,255,0.042)";
       for (let x = DOT_SPACING / 2; x < W; x += DOT_SPACING) {
-        for (let y = DOT_SPACING / 2; y < H; y += DOT_SPACING) {
+        for (let y = DOT_SPACING / 2 - dotShift; y < H + DOT_SPACING; y += DOT_SPACING) {
           ctx.fillRect(x, y, 1, 1);
         }
       }
@@ -170,9 +178,18 @@ export default function KineticGrid({
       }
 
       const cols = Math.max(2, Math.ceil(W / CELL_SIZE)) + 1;
-      const rows = Math.max(2, Math.ceil(H / CELL_SIZE)) + 1;
+      const rows = Math.max(2, Math.ceil(H / CELL_SIZE)) + 3;
       const cellW = W / (cols - 1);
-      const cellH = H / (rows - 1);
+      const cellH = H / (rows - 3);
+
+      /*
+       * The parallax offset, wrapped to one row of spacing. Wrapping is what
+       * makes it endless — the mesh is regular, so shifting it by exactly one
+       * row is indistinguishable from not shifting it at all. It has to wrap on
+       * `cellH` and not the nominal cell size, or every wrap is a visible jump
+       * of the difference between them.
+       */
+      const shift = (scroll.current * PARALLAX) % cellH;
 
       const pts: Point[][] = [];
       const prox: number[][] = [];
@@ -180,7 +197,14 @@ export default function KineticGrid({
         pts[row] = [];
         prox[row] = [];
         for (let col = 0; col < cols; col++) {
-          const { pt, proximity } = warp(col * cellW, row * cellH, col, row, cols, rows);
+          const { pt, proximity } = warp(
+            col * cellW,
+            (row - 1) * cellH - shift,
+            col,
+            row,
+            cols,
+            rows,
+          );
           pts[row][col] = pt;
           prox[row][col] = proximity;
         }
@@ -268,6 +292,10 @@ export default function KineticGrid({
     const onMove = (e: PointerEvent) => {
       target.current = { x: e.clientX, y: e.clientY };
     };
+    const onScroll = () => {
+      scroll.current = window.scrollY;
+      dirty.current = true;
+    };
     const onLeave = () => {
       target.current = { x: -9999, y: -9999 };
     };
@@ -282,11 +310,14 @@ export default function KineticGrid({
     };
 
     if (reduced.matches) {
+      scroll.current = window.scrollY;
       draw(performance.now());
       window.addEventListener("resize", () => draw(performance.now()));
       return () => window.removeEventListener("resize", setSize);
     }
 
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("pointerdown", onClick, { passive: true });
     document.addEventListener("mouseleave", onLeave);
@@ -323,6 +354,7 @@ export default function KineticGrid({
     return () => {
       stop();
       window.removeEventListener("resize", setSize);
+      window.removeEventListener("scroll", onScroll);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerdown", onClick);
       document.removeEventListener("mouseleave", onLeave);

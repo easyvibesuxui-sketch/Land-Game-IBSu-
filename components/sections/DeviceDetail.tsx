@@ -22,6 +22,9 @@ export default function DeviceDetail({ device }: { device: Device }) {
   });
   const artY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
   const artRotate = useTransform(scrollYProgress, [0, 1], [0, 14]);
+  /* The copy leaves against the unit rather than with it — opposing directions
+     are what separate the two columns into planes. */
+  const copyY = useTransform(scrollYProgress, [0, 1], ["0%", "-18%"]);
 
   /* The hero scrub is the centrepiece here: the unit assembles as you enter it. */
   const art = useRef<SVGSVGElement>(null);
@@ -40,7 +43,7 @@ export default function DeviceDetail({ device }: { device: Device }) {
         <Backdrop tilt={8} />
 
         <div className="shell relative grid min-h-[92svh] items-center gap-12 pb-20 pt-[calc(var(--nav-h)+4rem)] lg:grid-cols-2">
-          <div>
+          <motion.div style={{ y: s(copyY) }}>
             <FadeUp>
               <Link href="/#showroom" className="hud link-underline mb-8 inline-block">
                 ← All devices
@@ -74,7 +77,7 @@ export default function DeviceDetail({ device }: { device: Device }) {
                 </span>
               ))}
             </FadeUp>
-          </div>
+          </motion.div>
 
           {/* the unit, floating and drifting */}
           <motion.div

@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import Link from "next/link";
-import { motion, useScroll, useTransform } from "motion/react";
+import { motion, useScroll, useTransform, type MotionValue } from "motion/react";
 import { useReduced } from "@/lib/useReduced";
 import { devices } from "@/lib/devices";
 import GlassTile from "@/components/cards/GlassTile";
@@ -63,8 +63,8 @@ export default function SpecIndex() {
           }
           style={reduced ? undefined : { x }}
         >
-          {devices.map((d) => (
-            <SpecPanel key={d.slug} slug={d.slug} />
+          {devices.map((d, i) => (
+            <SpecPanel key={d.slug} slug={d.slug} index={i} progress={scrollYProgress} />
           ))}
         </motion.div>
 
@@ -84,46 +84,66 @@ export default function SpecIndex() {
   );
 }
 
-function SpecPanel({ slug }: { slug: string }) {
+/*
+ * Each panel rides the rail at its own height. Alternating the direction and
+ * phasing the amount by index means the row never travels as one slab — which
+ * is the whole difference between a rail that slides and a rail with depth.
+ */
+function SpecPanel({
+  slug,
+  index,
+  progress,
+}: {
+  slug: string;
+  index: number;
+  progress: MotionValue<number>;
+}) {
   const d = devices.find((x) => x.slug === slug)!;
+  const reduced = useReduced();
+  const drift = (index % 2 === 0 ? 1 : -1) * (26 + (index % 3) * 12);
+  const y = useTransform(progress, [0, 1], [drift, -drift]);
 
   return (
-    <GlassTile
-      shape="wide"
-      tilt={3}
-      className="relative flex h-[58svh] w-[min(420px,80vw)] shrink-0 flex-col overflow-hidden p-7"
-    >
-      <div className="mb-4 flex items-start justify-between">
-        <div>
-          <span className="hud-tight text-[var(--faint)]">{d.index}</span>
-          <h3 className="device-name mt-2 text-3xl text-[var(--text)]">{d.name}</h3>
-        </div>
-        <DeviceArt slug={d.slug} className="h-20 w-20 shrink-0 opacity-90" />
-      </div>
-
-      <p className="mb-5 text-sm leading-relaxed text-[var(--muted)]">{d.tagline}</p>
-
-      <dl className="min-h-0 flex-1 space-y-2 overflow-hidden">
-        {d.specs.slice(0, 6).map((s, i) => (
-          <div
-            key={`${s.label}-${i}`}
-            className="flex justify-between gap-4 border-b border-white/[0.07] pb-1.5"
-          >
-            <dt className="hud-tight shrink-0 text-[var(--faint)]">{s.label}</dt>
-            <dd className="text-right text-xs leading-snug text-[var(--text)]/85">{s.value}</dd>
-          </div>
-        ))}
-      </dl>
-
-      <Link
-        href={`/devices/${d.slug}`}
-        className="hud mt-5 inline-flex items-center gap-2 text-[var(--accent)]"
+    /* `shrink-0` has to move up here with the wrapper — it is the flex child of
+       the rail now, and a shrinkable wrapper would squeeze every panel. */
+    <motion.div className="shrink-0" style={{ y: reduced ? undefined : y }}>
+      <GlassTile
+        shape="wide"
+        tilt={3}
+        className="relative flex h-[58svh] w-[min(420px,80vw)] flex-col overflow-hidden p-7"
       >
-        Full sheet
-        <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden>
-          <path d="M2 12 L12 2 M5 2 H12 V9" stroke="currentColor" strokeWidth="1.4" />
-        </svg>
-      </Link>
-    </GlassTile>
+        <div className="mb-4 flex items-start justify-between">
+          <div>
+            <span className="hud-tight text-[var(--faint)]">{d.index}</span>
+            <h3 className="device-name mt-2 text-3xl text-[var(--text)]">{d.name}</h3>
+          </div>
+          <DeviceArt slug={d.slug} className="h-20 w-20 shrink-0 opacity-90" />
+        </div>
+
+        <p className="mb-5 text-sm leading-relaxed text-[var(--muted)]">{d.tagline}</p>
+
+        <dl className="min-h-0 flex-1 space-y-2 overflow-hidden">
+          {d.specs.slice(0, 6).map((s, i) => (
+            <div
+              key={`${s.label}-${i}`}
+              className="flex justify-between gap-4 border-b border-white/[0.07] pb-1.5"
+            >
+              <dt className="hud-tight shrink-0 text-[var(--faint)]">{s.label}</dt>
+              <dd className="text-right text-xs leading-snug text-[var(--text)]/85">{s.value}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <Link
+          href={`/devices/${d.slug}`}
+          className="hud mt-5 inline-flex items-center gap-2 text-[var(--accent)]"
+        >
+          Full sheet
+          <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden>
+            <path d="M2 12 L12 2 M5 2 H12 V9" stroke="currentColor" strokeWidth="1.4" />
+          </svg>
+        </Link>
+      </GlassTile>
+    </motion.div>
   );
 }

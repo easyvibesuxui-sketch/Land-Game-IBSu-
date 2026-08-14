@@ -12,7 +12,7 @@ export default function Outro() {
       <Backdrop tilt={-18} intensity={0.55} className="edge-fade-b" />
 
       <div className="shell relative">
-        <Parallax depth={30}>
+        <Parallax depth={46}>
           <h2 className="display mb-20 max-w-[12ch] text-[var(--text)]">
             <Reveal>Seven units</Reveal>
             <Reveal delay={0.08}>One range</Reveal>

@@ -35,10 +35,22 @@ export default function Hero() {
      — which is exactly where the pinned frame unpins. */
   const scrollYProgress = useSectionProgress(ref);
 
-  /* Kept shallow: the pinned frame is over two screens tall, so a deep offset
-     travels far enough to lift the mosaic over the paragraph on one column. */
-  const titleY = useTransform(scrollYProgress, [0, 1], ["0%", "-22%"]);
-  const tilesY = useTransform(scrollYProgress, [0, 1], ["0%", "-26%"]);
+  /*
+   * Three depths, nearest travelling furthest — in pixels, not percentages.
+   * A percentage on `y` resolves against the element's own height, so the
+   * headline (three lines of display type) outran the label block it was
+   * supposed to sit behind, and the order of the planes inverted on wide
+   * screens. Pixels are the only units in which "further away" means the same
+   * thing for two elements of different sizes.
+   *
+   * The spread is bounded: on one column the mosaic sits under the paragraph,
+   * and the 46px they close by has to stay inside the gap between them.
+   */
+  const titleY = useTransform(scrollYProgress, [0, 1], [0, -64]);
+  const labelY = useTransform(scrollYProgress, [0, 1], [0, -108]);
+  const tilesY = useTransform(scrollYProgress, [0, 1], [0, -154]);
+  /* The headline recedes as it leaves, which is what sells the depth. */
+  const titleScale = useTransform(scrollYProgress, [0, 1], [1, 0.94]);
   /* Content holds through the assembly and only leaves once the unit is whole. */
   const fade = useTransform(scrollYProgress, [0, 0.82, 0.97], [1, 1, 0]);
   const cue = useTransform(scrollYProgress, [0, 0.16], [1, 0]);
@@ -54,36 +66,44 @@ export default function Hero() {
         >
           {/* `ch` must live on the element that carries the display size — on a
               wrapper it would resolve against the 16px body font and crush the line. */}
-          <motion.div style={{ y: s(titleY) }} className="mb-auto mt-[13vh]">
+          <motion.div
+            style={{ y: s(titleY), scale: s(titleScale), originX: 0 }}
+            className="mb-auto mt-[13vh]"
+          >
             <h1 className="display max-w-[9ch] text-[var(--text)]">
               <RevealLines lines={["Every", "device,", "one range"]} />
             </h1>
           </motion.div>
 
-          <div className="flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
+          {/* The stacked gap is wider than the row gap on purpose: on one column
+              the mosaic closes on the paragraph by the difference in their
+              parallax depths, and the gap is what keeps them apart. */}
+          <div className="flex flex-col gap-16 lg:flex-row lg:items-end lg:justify-between lg:gap-10">
             {/* left: the label block from the reference */}
-            <FadeUp delay={0.5} className="max-w-md">
-              <div className="mb-5 flex items-center gap-4">
-                <span
-                  aria-hidden
-                  className="grid h-11 w-11 place-items-center rounded-full border border-white/25 text-[var(--accent)]"
-                >
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M2 12 L12 2 M5 2 H12 V9" stroke="currentColor" strokeWidth="1.4" />
-                  </svg>
-                </span>
-                <p className="hud text-[var(--text)]">
-                  Telematics
-                  <br />
-                  hardware
+            <motion.div style={{ y: s(labelY) }} className="max-w-md">
+              <FadeUp delay={0.5}>
+                <div className="mb-5 flex items-center gap-4">
+                  <span
+                    aria-hidden
+                    className="grid h-11 w-11 place-items-center rounded-full border border-white/25 text-[var(--accent)]"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <path d="M2 12 L12 2 M5 2 H12 V9" stroke="currentColor" strokeWidth="1.4" />
+                    </svg>
+                  </span>
+                  <p className="hud text-[var(--text)]">
+                    Telematics
+                    <br />
+                    hardware
+                  </p>
+                </div>
+                <p className="text-sm leading-relaxed text-[var(--muted)]">
+                  Seven telematics units for construction machinery — wired boxes reading the CAN
+                  bus, self-powered trackers for anything without a supply, and passive tags for
+                  the tools too small to carry either.
                 </p>
-              </div>
-              <p className="text-sm leading-relaxed text-[var(--muted)]">
-                Seven telematics units for construction machinery — wired boxes reading the CAN
-                bus, self-powered trackers for anything without a supply, and passive tags for
-                the tools too small to carry either.
-              </p>
-            </FadeUp>
+              </FadeUp>
+            </motion.div>
 
             {/* right: the unequal stat mosaic */}
             <motion.div
