@@ -47,8 +47,7 @@ export default function Showcase({ children }: { children: ReactNode }) {
         <div className="absolute left-0 top-0 h-svh w-full overflow-hidden">
           <Backdrop tilt={-6} image={HERO_BG} />
 
-          {/* the teardown, full-bleed — the transform sits on the canvas itself so
-              nothing between it and the backdrop forms a blend group */}
+          {/* the teardown, full-bleed */}
           <HeroSequence
             progress={scrollYProgress}
             completeAt={0.9}

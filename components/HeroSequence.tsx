@@ -6,7 +6,7 @@ import { asset } from "@/lib/asset";
 import { useReduced } from "@/lib/useReduced";
 
 /** Frames in public/hero, written by scripts/derive-hero-sequence.mjs. */
-export const HERO_FRAME_COUNT = 48;
+export const HERO_FRAME_COUNT = 36;
 
 const src = (i: number) => asset(`/hero/${String(i).padStart(3, "0")}.webp`);
 
@@ -34,12 +34,6 @@ export default function HeroSequence({
   progress: MotionValue<number>;
   completeAt?: number;
   className?: string;
-  /**
-   * Any transform belongs here rather than on a wrapper: `mix-blend-mode`
-   * blends an element with its nearest stacking-context ancestor, so a
-   * transformed wrapper would isolate the canvas and its black matte would
-   * paint as a rectangle instead of dropping out.
-   */
   style?: MotionStyle;
 }) {
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -121,20 +115,13 @@ export default function HeroSequence({
       aria-hidden
       className={className}
       /*
-       * The clip is matted on pure black, so `screen` drops the matte and the
-       * unit sits on the backdrop with no rectangle around it. The feather on
-       * the top and bottom edges takes care of what `screen` cannot: the matte
-       * carries a couple of near-black rows that would otherwise survive as a
-       * faint band. It costs nothing — the unit never reaches the frame's edge.
+       * The frames carry a real alpha channel — the derive script converts the
+       * clip's black matte into one — so this composites normally and the page
+       * shows through where the matte was. It used to rely on `screen`, which
+       * only looks transparent: the canvas was still opaque, so it painted a
+       * black rectangle over anything behind it that was not flat.
        */
-      style={{
-        mixBlendMode: "screen",
-        maskImage:
-          "linear-gradient(180deg, transparent 0%, #000 5%, #000 95%, transparent 100%)",
-        WebkitMaskImage:
-          "linear-gradient(180deg, transparent 0%, #000 5%, #000 95%, transparent 100%)",
-        ...style,
-      }}
+      style={style}
     />
   );
 }

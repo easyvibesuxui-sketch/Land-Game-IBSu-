@@ -17,9 +17,16 @@ import sharp from "sharp";
 
 const CLIP = "assets/hero-sequence/volt-exploded.mp4";
 const DST = "public/hero";
-/** 8 fps over a ~6 s clip lands on 48 frames — smooth to scrub, ~1.5 MB total. */
-const FPS = 8;
-const WIDTH = 820;
+/*
+ * 6 fps over a ~6 s clip lands on 36 frames. Fewer and smaller than the opaque
+ * version was, because a real alpha channel roughly doubles the bytes per frame
+ * — it is a second image. 36 is still ~33 px of scroll per frame, which reads
+ * as continuous.
+ */
+const FPS = 6;
+const WIDTH = 760;
+/** Below this the un-premultiply amplifies compression noise instead of colour. */
+const ALPHA_FLOOR = 72;
 
 if (!fs.existsSync(CLIP)) throw new Error(`missing ${CLIP}`);
 
@@ -41,14 +48,48 @@ try {
   for (let i = 0; i < files.length; i++) {
     const from = path.join(tmp, files[files.length - 1 - i]);
     const out = path.join(DST, `${String(i).padStart(3, "0")}.webp`);
-    await sharp(from)
-      /*
-       * Crush the near-black back to true black. The clip is matted on black
-       * and the page composites it with `screen`, so the faint banding H.264
-       * leaves in the matte would otherwise paint as a visible rectangle.
-       */
+
+    /*
+     * Crush the near-black back to true black first — H.264 leaves faint
+     * banding in the matte and it would survive as a haze once the matte
+     * becomes alpha.
+     */
+    const { data, info } = await sharp(from)
       .linear(1.04, -9)
-      .webp({ quality: 66, effort: 6 })
+      .removeAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+
+    /*
+     * Black matte → alpha, the standard conversion for footage shot on black:
+     * alpha is the brightest channel, and the colour is un-premultiplied by it.
+     * Composited normally over any background this reproduces exactly what
+     * `screen` produced over black — but it stays transparent where the matte
+     * was, so the page shows through instead of a black rectangle.
+     */
+    const px = info.width * info.height;
+    const rgba = Buffer.allocUnsafe(px * 4);
+    for (let p = 0; p < px; p++) {
+      const r = data[p * 3];
+      const g = data[p * 3 + 1];
+      const b = data[p * 3 + 2];
+      let a = Math.max(r, g, b);
+      if (a < 5) a = 0;
+      rgba[p * 4 + 3] = a;
+      if (a === 0) {
+        rgba[p * 4] = 0;
+        rgba[p * 4 + 1] = 0;
+        rgba[p * 4 + 2] = 0;
+      } else {
+        const k = 255 / Math.max(a, ALPHA_FLOOR);
+        rgba[p * 4] = Math.min(255, Math.round(r * k));
+        rgba[p * 4 + 1] = Math.min(255, Math.round(g * k));
+        rgba[p * 4 + 2] = Math.min(255, Math.round(b * k));
+      }
+    }
+
+    await sharp(rgba, { raw: { width: info.width, height: info.height, channels: 4 } })
+      .webp({ quality: 50, alphaQuality: 40, effort: 6 })
       .toFile(out);
     total += fs.statSync(out).size;
   }
